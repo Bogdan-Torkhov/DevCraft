@@ -104,6 +104,14 @@ export function getProjects(params: {
   const db = getDb();
   const { sort = "trending", tag, search, authorId, currentUserId, limit = 50 } = params;
 
+  const queryParams: unknown[] = [];
+  const starCheckSql = currentUserId
+    ? "(SELECT COUNT(*) FROM stars s WHERE s.project_id = p.id AND s.user_id = ?) > 0"
+    : "0";
+  if (currentUserId) {
+    queryParams.push(currentUserId);
+  }
+
   let query = `
     SELECT 
       p.*,
@@ -113,13 +121,11 @@ export function getProjects(params: {
       u.role AS author_role,
       (SELECT COUNT(*) FROM stars s WHERE s.project_id = p.id) AS stars_count,
       (SELECT COUNT(*) FROM comments c WHERE c.project_id = p.id) AS comments_count,
-      ${currentUserId ? `(SELECT COUNT(*) FROM stars s WHERE s.project_id = p.id AND s.user_id = '${currentUserId}') > 0` : "0"} AS has_starred
+      ${starCheckSql} AS has_starred
     FROM projects p
     JOIN users u ON p.author_id = u.id
     WHERE 1=1
   `;
-
-  const queryParams: unknown[] = [];
 
   if (authorId) {
     query += " AND p.author_id = ?";
@@ -153,7 +159,8 @@ export function getProjects(params: {
       break;
   }
 
-  query += ` LIMIT ${limit}`;
+  query += " LIMIT ?";
+  queryParams.push(limit);
 
   type ProjectDbRow = Omit<ProjectWithAuthor, "has_starred"> & { has_starred: number };
   const rows = db.prepare(query).all(...queryParams) as unknown as ProjectDbRow[];
@@ -165,6 +172,15 @@ export function getProjects(params: {
 
 export function getProjectById(id: string, currentUserId?: string | null): ProjectWithAuthor | null {
   const db = getDb();
+  const queryParams: unknown[] = [];
+  const starCheckSql = currentUserId
+    ? "(SELECT COUNT(*) FROM stars s WHERE s.project_id = p.id AND s.user_id = ?) > 0"
+    : "0";
+  if (currentUserId) {
+    queryParams.push(currentUserId);
+  }
+  queryParams.push(id);
+
   const query = `
     SELECT 
       p.*,
@@ -174,14 +190,14 @@ export function getProjectById(id: string, currentUserId?: string | null): Proje
       u.role AS author_role,
       (SELECT COUNT(*) FROM stars s WHERE s.project_id = p.id) AS stars_count,
       (SELECT COUNT(*) FROM comments c WHERE c.project_id = p.id) AS comments_count,
-      ${currentUserId ? `(SELECT COUNT(*) FROM stars s WHERE s.project_id = p.id AND s.user_id = '${currentUserId}') > 0` : "0"} AS has_starred
+      ${starCheckSql} AS has_starred
     FROM projects p
     JOIN users u ON p.author_id = u.id
     WHERE p.id = ?
   `;
 
   type ProjectDbRow = Omit<ProjectWithAuthor, "has_starred"> & { has_starred: number };
-  const row = db.prepare(query).get(id) as unknown as ProjectDbRow | undefined;
+  const row = db.prepare(query).get(...queryParams) as unknown as ProjectDbRow | undefined;
   if (!row) return null;
 
   return {

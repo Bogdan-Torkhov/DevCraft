@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { getCurrentUser, switchDemoUser, destroySession, loginWithCredentials, registerUser } from "@/lib/auth";
+import { getCurrentUser, destroySession, loginWithCredentials, registerUser } from "@/lib/auth";
 import { toggleStar, addComment, updateComment, deleteComment, createProject, deleteProject, updateUserProfile } from "@/lib/services";
 
 export async function updateProfileAction(formData: FormData) {
@@ -97,14 +97,6 @@ export async function deleteCommentAction(commentId: string, projectId: string) 
 
   revalidatePath(`/projects/${projectId}`);
   return { success: true };
-}
-
-export async function switchDemoUserAction(userId: string) {
-  const success = await switchDemoUser(userId);
-  if (success) {
-    revalidatePath("/", "layout");
-  }
-  return { success };
 }
 
 export async function logoutAction() {

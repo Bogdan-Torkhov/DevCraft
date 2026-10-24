@@ -150,8 +150,11 @@ export default function ProjectModalStudio({ isOpen, onClose }: ProjectModalStud
             </div>
           )}
 
-          {activeTab === "edit" ? (
-            <form id="project-form" onSubmit={handleSubmit} className="space-y-4">
+          <form
+            id="project-form"
+            onSubmit={handleSubmit}
+            className={activeTab === "edit" ? "space-y-4" : "hidden"}
+          >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Title */}
                 <div>
@@ -284,16 +287,17 @@ export default function ProjectModalStudio({ isOpen, onClose }: ProjectModalStud
                 />
               </div>
             </form>
-          ) : (
-            <div className="h-[460px] rounded-xl overflow-hidden border border-white/[0.08] bg-[#090a10]">
-              <iframe
-                title="Preview"
-                srcDoc={codeSnippet}
-                sandbox="allow-scripts allow-modals"
-                className="w-full h-full border-0"
-              />
-            </div>
-          )}
+
+            {activeTab === "preview" && (
+              <div className="h-[460px] rounded-xl overflow-hidden border border-white/[0.08] bg-[#090a10]">
+                <iframe
+                  title="Preview"
+                  srcDoc={codeSnippet}
+                  sandbox="allow-scripts allow-modals"
+                  className="w-full h-full border-0"
+                />
+              </div>
+            )}
         </div>
 
         {/* Modal Footer */}

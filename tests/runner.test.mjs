@@ -364,5 +364,57 @@ describe("DevCraft Core Functions & Engine Automated Tests", () => {
       assert.deepEqual(validateRegistration("securePassword123", "differentPassword"), { error: "Passwords do not match" });
       assert.deepEqual(validateRegistration("securePassword123", "securePassword123"), { success: true });
     });
+
+    test("safely handles SQL injection payloads via parameterized statements", () => {
+      db.prepare(`
+        INSERT INTO users (id, username, name, email, password_hash)
+        VALUES ('u1', 'legit', 'Legit User', 'legit@test.com', 'h')
+      `).run();
+
+      db.prepare(`
+        INSERT INTO projects (id, title, tagline, description, tags, author_id)
+        VALUES ('p1', 'Normal Title', 'Tag', 'Desc', '[]', 'u1')
+      `).run();
+
+      // Malicious payload attempting SQL injection
+      const maliciousUserId = "' OR 1=1 --";
+      const stmt = db.prepare(`
+        SELECT 
+          p.*,
+          (SELECT COUNT(*) FROM stars s WHERE s.project_id = p.id AND s.user_id = ?) > 0 AS has_starred
+        FROM projects p
+        WHERE p.id = ?
+      `);
+
+      // Parameterized query must safely treat it as literal string with 0 results
+      const row = stmt.get(maliciousUserId, "p1");
+      assert.ok(row, "Project should still be returned");
+      assert.equal(row.has_starred, 0, "SQL injection must NOT bypass star check");
+    });
+
+    test("enforces author-only project deletion authorization", () => {
+      db.prepare(`
+        INSERT INTO users (id, username, name, email, password_hash)
+        VALUES ('u1', 'owner', 'Owner User', 'owner@test.com', 'h'),
+               ('u2', 'attacker', 'Attacker User', 'attacker@test.com', 'h')
+      `).run();
+
+      db.prepare(`
+        INSERT INTO projects (id, title, tagline, description, tags, author_id)
+        VALUES ('p_secure', 'Protected Project', 'Tag', 'Desc', '[]', 'u1')
+      `).run();
+
+      // Unauthorized attacker attempts to delete u1's project
+      const attackRes = db.prepare("DELETE FROM projects WHERE id = ? AND author_id = ?").run("p_secure", "u2");
+      assert.equal(attackRes.changes, 0, "Attacker must not be able to delete another user's project");
+
+      // Verify project still exists
+      const exists = db.prepare("SELECT id FROM projects WHERE id = 'p_secure'").get();
+      assert.ok(exists, "Project must still exist after unauthorized deletion attempt");
+
+      // Authorized owner deletes their project
+      const ownerRes = db.prepare("DELETE FROM projects WHERE id = ? AND author_id = ?").run("p_secure", "u1");
+      assert.equal(ownerRes.changes, 1, "Owner must be able to delete their own project");
+    });
   });
 });

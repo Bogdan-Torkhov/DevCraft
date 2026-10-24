@@ -50,7 +50,8 @@ export default function FilterBar({
           {searchQuery && (
             <button
               onClick={() => onSearchChange("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+              aria-label="Clear search query"
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 min-w-[24px] min-h-[24px] flex items-center justify-center text-slate-400 hover:text-white"
             >
               <X className="w-4 h-4" />
             </button>

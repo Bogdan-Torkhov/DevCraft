@@ -125,12 +125,14 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
           {tab === "login" && (
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                <label htmlFor="signin-identifier" className="block text-xs font-semibold text-slate-300 mb-1">
                   Email or Username
                 </label>
                 <input
+                  id="signin-identifier"
                   name="emailOrUsername"
                   type="text"
+                  autoComplete="username"
                   required
                   placeholder="name@example.com or username"
                   className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs text-white placeholder-slate-500 outline-none focus:border-violet-500"
@@ -138,12 +140,14 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                <label htmlFor="signin-password" className="block text-xs font-semibold text-slate-300 mb-1">
                   Password
                 </label>
                 <input
+                  id="signin-password"
                   name="password"
                   type="password"
+                  autoComplete="current-password"
                   required
                   placeholder="••••••••"
                   className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs text-white placeholder-slate-500 outline-none focus:border-violet-500"
@@ -158,7 +162,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 {isPending ? "Authenticating..." : "Sign In to DevCraft"}
               </button>
 
-              <p className="text-[11px] text-slate-500 text-center pt-2">
+              <p className="text-[11px] text-slate-400 text-center pt-2">
                 Don&apos;t have an account?{" "}
                 <button
                   type="button"
@@ -174,10 +178,12 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
           {tab === "register" && (
             <form onSubmit={handleRegister} className="space-y-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Full Name *</label>
+                <label htmlFor="reg-name" className="block text-xs font-semibold text-slate-300 mb-1">Full Name *</label>
                 <input
+                  id="reg-name"
                   name="name"
                   type="text"
+                  autoComplete="name"
                   required
                   placeholder="Sarah Connor"
                   className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs text-white placeholder-slate-500 outline-none focus:border-violet-500"
@@ -186,10 +192,12 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Username *</label>
+                  <label htmlFor="reg-username" className="block text-xs font-semibold text-slate-300 mb-1">Username *</label>
                   <input
+                    id="reg-username"
                     name="username"
                     type="text"
+                    autoComplete="username"
                     required
                     placeholder="sarah_dev"
                     className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs text-white placeholder-slate-500 outline-none focus:border-violet-500"
@@ -197,8 +205,9 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Role / Headline</label>
+                  <label htmlFor="reg-role" className="block text-xs font-semibold text-slate-300 mb-1">Role / Headline</label>
                   <input
+                    id="reg-role"
                     name="role"
                     type="text"
                     placeholder="Frontend Engineer"
@@ -208,10 +217,12 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Email *</label>
+                <label htmlFor="reg-email" className="block text-xs font-semibold text-slate-300 mb-1">Email *</label>
                 <input
+                  id="reg-email"
                   name="email"
                   type="email"
+                  autoComplete="email"
                   required
                   placeholder="sarah@example.com"
                   className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs text-white placeholder-slate-500 outline-none focus:border-violet-500"
@@ -220,10 +231,12 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Password *</label>
+                  <label htmlFor="reg-password" className="block text-xs font-semibold text-slate-300 mb-1">Password *</label>
                   <input
+                    id="reg-password"
                     name="password"
                     type="password"
+                    autoComplete="new-password"
                     required
                     placeholder="Min 6 characters"
                     className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs text-white placeholder-slate-500 outline-none focus:border-violet-500"
@@ -231,10 +244,12 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Confirm Password *</label>
+                  <label htmlFor="reg-confirm-password" className="block text-xs font-semibold text-slate-300 mb-1">Confirm Password *</label>
                   <input
+                    id="reg-confirm-password"
                     name="confirmPassword"
                     type="password"
+                    autoComplete="new-password"
                     required
                     placeholder="Repeat password"
                     className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs text-white placeholder-slate-500 outline-none focus:border-violet-500"
@@ -243,8 +258,9 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">About Me / Bio</label>
+                <label htmlFor="reg-bio" className="block text-xs font-semibold text-slate-300 mb-1">About Me / Bio</label>
                 <textarea
+                  id="reg-bio"
                   name="bio"
                   rows={2}
                   placeholder="Tell the community about what you design or build..."

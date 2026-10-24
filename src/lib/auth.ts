@@ -126,12 +126,3 @@ export async function registerUser(data: {
 
   return { success: true, user: newUser };
 }
-
-export async function switchDemoUser(userId: string): Promise<boolean> {
-  const db = getDb();
-  const user = db.prepare("SELECT id FROM users WHERE id = ?").get(userId);
-  if (!user) return false;
-
-  await createSession(userId);
-  return true;
-}

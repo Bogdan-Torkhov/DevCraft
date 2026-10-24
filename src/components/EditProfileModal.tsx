@@ -142,6 +142,7 @@ export default function EditProfileModal({ isOpen, onClose, user }: EditProfileM
                         <button
                           key={i}
                           type="button"
+                          aria-label={`Select avatar preset ${i + 1}`}
                           onClick={() => setAvatarUrl(url)}
                           className={`w-6 h-6 rounded-lg overflow-hidden border transition-all ${
                             avatarUrl === url ? "border-violet-400 scale-110" : "border-white/10 opacity-70 hover:opacity-100"
