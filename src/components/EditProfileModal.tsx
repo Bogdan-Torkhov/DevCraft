@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { X, Sparkles, Image as ImageIcon, User, Briefcase, Globe, Check, RefreshCw } from "lucide-react";
 import { GithubIcon } from "./Icons";
 import { DbUser } from "@/lib/db";
@@ -23,6 +24,7 @@ const PRESET_AVATARS = [
 ];
 
 export default function EditProfileModal({ isOpen, onClose, user }: EditProfileModalProps) {
+  const router = useRouter();
   const [name, setName] = useState(user.name);
   const [role, setRole] = useState(user.role);
   const [bio, setBio] = useState(user.bio || "");
@@ -41,17 +43,23 @@ export default function EditProfileModal({ isOpen, onClose, user }: EditProfileM
     setAvatarUrl(`https://api.dicebear.com/7.x/bottts/svg?seed=${seed}`);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
 
-    const formData = new FormData();
-    formData.append("name", name);
-    formData.append("role", role);
-    formData.append("bio", bio);
-    formData.append("avatarUrl", avatarUrl);
-    formData.append("githubUrl", githubUrl);
-    formData.append("websiteUrl", websiteUrl);
+    const formData = new FormData(e.currentTarget);
+    if (!formData.get("avatarUrl") && avatarUrl) {
+      formData.set("avatarUrl", avatarUrl);
+    }
+    if (!formData.get("bio") && bio) {
+      formData.set("bio", bio);
+    }
+    if (!formData.get("role") && role) {
+      formData.set("role", role);
+    }
+    if (!formData.get("name") && name) {
+      formData.set("name", name);
+    }
 
     startTransition(async () => {
       const res = await updateProfileAction(formData);
@@ -63,6 +71,7 @@ export default function EditProfileModal({ isOpen, onClose, user }: EditProfileM
           message: "Your new avatar and about me details are live!",
           type: "success",
         });
+        router.refresh();
         onClose();
       }
     });
@@ -80,7 +89,8 @@ export default function EditProfileModal({ isOpen, onClose, user }: EditProfileM
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.06] transition-colors"
+            aria-label="Close edit profile modal"
+            className="p-1.5 min-w-[32px] min-h-[32px] flex items-center justify-center rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.06] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -115,6 +125,7 @@ export default function EditProfileModal({ isOpen, onClose, user }: EditProfileM
                   <div className="relative">
                     <ImageIcon className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                     <input
+                      name="avatarUrl"
                       type="url"
                       value={avatarUrl}
                       onChange={(e) => setAvatarUrl(e.target.value)}
@@ -162,6 +173,7 @@ export default function EditProfileModal({ isOpen, onClose, user }: EditProfileM
                 <div className="relative">
                   <User className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
+                    name="name"
                     type="text"
                     required
                     value={name}
@@ -176,6 +188,7 @@ export default function EditProfileModal({ isOpen, onClose, user }: EditProfileM
                 <div className="relative">
                   <Briefcase className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
+                    name="role"
                     type="text"
                     value={role}
                     onChange={(e) => setRole(e.target.value)}
@@ -197,6 +210,7 @@ export default function EditProfileModal({ isOpen, onClose, user }: EditProfileM
                 </span>
               </div>
               <textarea
+                name="bio"
                 rows={4}
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
@@ -212,6 +226,7 @@ export default function EditProfileModal({ isOpen, onClose, user }: EditProfileM
                 <div className="relative">
                   <Globe className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
+                    name="websiteUrl"
                     type="url"
                     value={websiteUrl}
                     onChange={(e) => setWebsiteUrl(e.target.value)}
@@ -226,6 +241,7 @@ export default function EditProfileModal({ isOpen, onClose, user }: EditProfileM
                 <div className="relative">
                   <GithubIcon className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
+                    name="githubUrl"
                     type="url"
                     value={githubUrl}
                     onChange={(e) => setGithubUrl(e.target.value)}

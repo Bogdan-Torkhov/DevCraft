@@ -172,8 +172,8 @@ export default function CommentSection({
       {/* Existing comments list */}
       <div className="space-y-4 pt-2">
         {comments.length === 0 ? (
-          <div className="text-center py-8 text-slate-500 text-xs">
-            <Sparkles className="w-6 h-6 mx-auto mb-2 text-slate-600" />
+          <div className="text-center py-8 text-slate-400 text-xs">
+            <Sparkles className="w-6 h-6 mx-auto mb-2 text-slate-500" />
             No peer comments yet. Be the first to start the discussion!
           </div>
         ) : (
@@ -217,7 +217,7 @@ export default function CommentSection({
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] text-slate-500 shrink-0 font-mono">
+                      <span className="text-[10px] text-slate-400 shrink-0 font-mono font-medium">
                         {new Date(c.created_at).toLocaleDateString(undefined, {
                           month: "short",
                           day: "numeric",
@@ -230,18 +230,20 @@ export default function CommentSection({
                           <button
                             onClick={() => handleStartEdit(c)}
                             disabled={isPending}
-                            className="p-1 rounded hover:bg-white/[0.08] text-slate-400 hover:text-violet-300 transition-colors"
+                            className="p-1.5 min-w-[28px] min-h-[28px] flex items-center justify-center rounded hover:bg-white/[0.08] text-slate-300 hover:text-violet-300 transition-colors"
                             title="Edit comment"
+                            aria-label="Edit comment"
                           >
-                            <Edit2 className="w-3 h-3" />
+                            <Edit2 className="w-3.5 h-3.5" />
                           </button>
                           <button
                             onClick={() => handleDelete(c.id)}
                             disabled={isPending}
-                            className="p-1 rounded hover:bg-rose-500/10 text-slate-400 hover:text-rose-400 transition-colors"
+                            className="p-1.5 min-w-[28px] min-h-[28px] flex items-center justify-center rounded hover:bg-rose-500/10 text-slate-300 hover:text-rose-400 transition-colors"
                             title="Delete comment"
+                            aria-label="Delete comment"
                           >
-                            <Trash2 className="w-3 h-3" />
+                            <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </div>
                       )}

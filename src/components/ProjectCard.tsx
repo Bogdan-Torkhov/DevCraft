@@ -147,45 +147,39 @@ export default function ProjectCard({ project, onRequireAuth, onTagClick }: Proj
       {/* Card Content */}
       <div className="p-5 flex-1 flex flex-col justify-between relative z-10">
         <div>
-          {/* Author info: Clicking avatar, name, or @username navigates to creator profile! */}
+          {/* Author info: Single unified accessible touch target */}
           <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2.5 group/author">
-              <Link
-                href={`/creators/${project.author_username}`}
-                className="shrink-0 hover:scale-105 transition-transform"
-                title={`Visit @${project.author_username}'s profile`}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={project.author_avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${project.author_username}`}
-                  alt={project.author_name}
-                  className="w-7 h-7 rounded-full object-cover border border-white/10 group-hover/author:border-violet-400 transition-colors"
-                />
-              </Link>
+            <Link
+              href={`/creators/${project.author_username}`}
+              className="flex items-center gap-2.5 group/author min-h-[36px] py-0.5"
+              title={`Visit @${project.author_username}'s profile`}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={project.author_avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${project.author_username}`}
+                alt=""
+                aria-hidden="true"
+                className="w-7 h-7 rounded-full object-cover border border-white/10 group-hover/author:border-violet-400 transition-colors"
+              />
               <div className="flex flex-col">
-                <Link
-                  href={`/creators/${project.author_username}`}
-                  className="text-xs font-semibold text-slate-200 hover:text-violet-300 transition-colors"
-                >
+                <span className="text-xs font-semibold text-slate-200 group-hover/author:text-violet-300 transition-colors">
                   {project.author_name}
-                </Link>
-                <Link
-                  href={`/creators/${project.author_username}`}
-                  className="text-[11px] text-violet-400/90 hover:text-violet-300 font-mono -mt-0.5"
-                >
+                </span>
+                <span className="text-[11px] text-violet-400/90 group-hover/author:text-violet-300 font-mono -mt-0.5">
                   @{project.author_username}
-                </Link>
+                </span>
               </div>
-            </div>
+            </Link>
 
             {/* Star Button */}
             <button
               onClick={handleStar}
               disabled={isPending}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all border ${
+              aria-label={hasStarred ? `Unstar project, current stars: ${starsCount}` : `Star project, current stars: ${starsCount}`}
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 min-h-[32px] rounded-lg text-xs font-semibold transition-all border ${
                 hasStarred
                   ? "bg-amber-500/15 text-amber-300 border-amber-500/30 shadow-sm shadow-amber-500/10"
-                  : "bg-white/[0.04] text-slate-400 border-white/[0.06] hover:bg-white/[0.08] hover:text-slate-200"
+                  : "bg-white/[0.04] text-slate-300 border-white/[0.06] hover:bg-white/[0.08] hover:text-slate-100"
               }`}
             >
               <Star
@@ -209,15 +203,16 @@ export default function ProjectCard({ project, onRequireAuth, onTagClick }: Proj
         </div>
 
         {/* Footer: Fully working Tags & Metrics */}
-        <div className="mt-4 pt-3.5 border-t border-white/[0.06] flex items-center justify-between text-xs text-slate-500">
+        <div className="mt-4 pt-3.5 border-t border-white/[0.06] flex items-center justify-between text-xs text-slate-300">
           {/* Clickable Tag Buttons */}
           <div className="flex items-center gap-1.5 overflow-hidden">
             {tags.slice(0, 2).map((t) => (
               <button
                 key={t}
                 onClick={(e) => handleTagClick(e, t)}
-                className="px-2 py-0.5 rounded-md bg-white/[0.04] hover:bg-violet-500/20 hover:text-violet-300 hover:border-violet-500/40 text-slate-400 border border-white/[0.06] text-[10px] font-medium transition-all cursor-pointer"
+                className="px-2 py-1 min-h-[26px] rounded-md bg-white/[0.04] hover:bg-violet-500/20 hover:text-violet-300 hover:border-violet-500/40 text-slate-300 border border-white/[0.06] text-[10px] font-medium transition-all cursor-pointer"
                 title={`Filter by #${t}`}
+                aria-label={`Filter by #${t}`}
               >
                 #{t}
               </button>
@@ -225,7 +220,9 @@ export default function ProjectCard({ project, onRequireAuth, onTagClick }: Proj
             {tags.length > 2 && (
               <button
                 onClick={(e) => handleTagClick(e, tags[2])}
-                className="text-[10px] text-slate-500 hover:text-violet-300"
+                className="px-1.5 py-1 min-w-[26px] min-h-[26px] rounded-md bg-white/[0.04] hover:bg-violet-500/20 text-[10px] font-semibold text-slate-300 hover:text-violet-300 transition-colors"
+                title={`Filter by #${tags[2]}`}
+                aria-label={`Show more tags starting with #${tags[2]}`}
               >
                 +{tags.length - 2}
               </button>
@@ -235,19 +232,20 @@ export default function ProjectCard({ project, onRequireAuth, onTagClick }: Proj
           {/* Metrics: Clickable Comments and Views */}
           <div className="flex items-center gap-3 font-mono">
             <span
-              className="flex items-center gap-1 text-[11px] text-slate-400 hover:text-slate-200 transition-colors"
+              className="flex items-center gap-1 text-[11px] text-slate-300"
               title={`${project.views} views recorded`}
             >
-              <Eye className="w-3.5 h-3.5 text-slate-500" />
+              <Eye className="w-3.5 h-3.5 text-slate-400" />
               <span>{project.views}</span>
             </span>
 
             <Link
               href={`/projects/${project.id}#comments`}
-              className="flex items-center gap-1 text-[11px] text-slate-400 hover:text-violet-300 transition-colors cursor-pointer group/cmt"
+              className="flex items-center gap-1 text-[11px] text-slate-300 hover:text-violet-300 transition-colors cursor-pointer group/cmt min-h-[26px]"
               title="Jump to community comments"
+              aria-label={`View ${project.comments_count} comments`}
             >
-              <MessageSquare className="w-3.5 h-3.5 text-slate-500 group-hover/cmt:text-violet-400" />
+              <MessageSquare className="w-3.5 h-3.5 text-slate-400 group-hover/cmt:text-violet-400" />
               <span>{project.comments_count}</span>
             </Link>
           </div>

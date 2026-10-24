@@ -105,6 +105,8 @@ export default function Navbar({ currentUser }: NavbarProps) {
               <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={() => setIsUserMenuOpen((prev) => !prev)}
+                  aria-label={`User menu for ${currentUser.name}`}
+                  aria-expanded={isUserMenuOpen}
                   className={`flex items-center gap-2 pl-2 pr-2.5 py-1 rounded-full border transition-all ${
                     isUserMenuOpen
                       ? "bg-violet-600/20 border-violet-500/50 shadow-md shadow-violet-600/20"
@@ -114,7 +116,8 @@ export default function Navbar({ currentUser }: NavbarProps) {
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={currentUser.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser.username}`}
-                    alt={currentUser.name}
+                    alt=""
+                    aria-hidden="true"
                     className="w-6 h-6 rounded-full object-cover border border-white/20"
                   />
                   <span className="text-xs font-medium text-slate-200 hidden sm:inline max-w-[100px] truncate">

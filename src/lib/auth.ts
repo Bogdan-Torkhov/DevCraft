@@ -36,7 +36,7 @@ export async function createSession(userId: string): Promise<string> {
   const cookieStore = await cookies();
   cookieStore.set(SESSION_COOKIE, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: process.env.COOKIE_SECURE === "true" || (process.env.NODE_ENV === "production" && process.env.VERCEL === "1"),
     sameSite: "lax",
     path: "/",
     maxAge: SESSION_EXPIRY_DAYS * 24 * 60 * 60,

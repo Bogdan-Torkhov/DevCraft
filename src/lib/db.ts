@@ -29,7 +29,7 @@ export function getDb(): DatabaseSync {
   return global.__devcraft_db;
 }
 
-function initSchema(db: DatabaseSync) {
+export function initSchema(db: DatabaseSync) {
   db.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id TEXT PRIMARY KEY,

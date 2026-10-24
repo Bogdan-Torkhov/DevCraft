@@ -31,9 +31,9 @@ export default async function HomePage() {
 
       {/* Footer */}
       <footer className="border-t border-white/[0.08] bg-[#07080d] py-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
           <div className="flex items-center gap-2">
-            <span className="font-semibold text-slate-300">DevCraft</span>
+            <span className="font-semibold text-slate-200">DevCraft</span>
             <span>• The Developer & UI/UX Showcase Engine</span>
           </div>
           <div>

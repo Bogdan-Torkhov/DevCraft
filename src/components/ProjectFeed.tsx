@@ -79,7 +79,8 @@ export default function ProjectFeed({
   }, [initialProjects, sort, tag, search]);
 
   return (
-    <div>
+    <section aria-label="Community Showcases">
+      <h2 className="sr-only">Explore Creative Code & Components</h2>
       <FilterBar
         currentSort={sort}
         currentTag={tag}
@@ -125,6 +126,6 @@ export default function ProjectFeed({
           onClose={() => setIsAuthModalOpen(false)}
         />
       )}
-    </div>
+    </section>
   );
 }

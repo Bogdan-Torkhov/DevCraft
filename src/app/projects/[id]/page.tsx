@@ -166,35 +166,28 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
                 Author & Creator
               </div>
 
-              <div className="flex items-center gap-3.5">
-                <Link
-                  href={`/creators/${project.author_username}`}
-                  className="shrink-0 hover:scale-105 transition-transform"
-                  title={`View @${project.author_username}'s profile`}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={project.author_avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${project.author_username}`}
-                    alt={project.author_name}
-                    className="w-12 h-12 rounded-2xl object-cover border border-white/10 hover:border-violet-400 transition-colors"
-                  />
-                </Link>
+              <Link
+                href={`/creators/${project.author_username}`}
+                className="flex items-center gap-3.5 group/author min-h-[48px] py-1"
+                title={`View @${project.author_username}'s profile`}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={project.author_avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${project.author_username}`}
+                  alt=""
+                  aria-hidden="true"
+                  className="w-12 h-12 rounded-2xl object-cover border border-white/10 group-hover/author:border-violet-400 transition-colors shrink-0"
+                />
                 <div className="min-w-0 flex-1">
-                  <Link
-                    href={`/creators/${project.author_username}`}
-                    className="text-base font-bold text-white hover:text-violet-300 transition-colors block truncate"
-                  >
+                  <span className="text-base font-bold text-white group-hover/author:text-violet-300 transition-colors block truncate">
                     {project.author_name}
-                  </Link>
-                  <Link
-                    href={`/creators/${project.author_username}`}
-                    className="text-xs text-violet-400 hover:text-violet-300 font-mono block truncate"
-                  >
+                  </span>
+                  <span className="text-xs text-violet-400 group-hover/author:text-violet-300 font-mono block truncate">
                     @{project.author_username}
-                  </Link>
+                  </span>
                   <p className="text-[11px] text-slate-400 mt-0.5 truncate">{project.author_role}</p>
                 </div>
-              </div>
+              </Link>
 
               <p className="text-xs text-slate-400 leading-relaxed pt-1 border-t border-white/[0.06]">
                 Contributing innovative components, open design systems, and code experiments to DevCraft.
