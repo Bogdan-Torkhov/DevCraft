@@ -7,6 +7,54 @@ function toPlain<T>(obj: T): T {
   return { ...obj };
 }
 
+export function updateUserProfile(
+  userId: string,
+  data: {
+    name?: string;
+    avatarUrl?: string;
+    bio?: string;
+    role?: string;
+    githubUrl?: string;
+    websiteUrl?: string;
+  }
+): boolean {
+  const db = getDb();
+  const fields: string[] = [];
+  const params: unknown[] = [];
+
+  if (data.name !== undefined) {
+    fields.push("name = ?");
+    params.push(data.name.trim());
+  }
+  if (data.avatarUrl !== undefined) {
+    fields.push("avatar_url = ?");
+    params.push(data.avatarUrl.trim() || null);
+  }
+  if (data.bio !== undefined) {
+    fields.push("bio = ?");
+    params.push(data.bio.trim() || null);
+  }
+  if (data.role !== undefined) {
+    fields.push("role = ?");
+    params.push(data.role.trim() || "Developer");
+  }
+  if (data.githubUrl !== undefined) {
+    fields.push("github_url = ?");
+    params.push(data.githubUrl.trim() || null);
+  }
+  if (data.websiteUrl !== undefined) {
+    fields.push("website_url = ?");
+    params.push(data.websiteUrl.trim() || null);
+  }
+
+  if (fields.length === 0) return true;
+
+  params.push(userId);
+  const sql = `UPDATE users SET ${fields.join(", ")} WHERE id = ?`;
+  const result = db.prepare(sql).run(...params);
+  return (result.changes ?? 0) > 0;
+}
+
 export function getAllUsers(): Omit<DbUser, "password_hash">[] {
   const db = getDb();
   const rows = db.prepare(`

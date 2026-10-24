@@ -1,13 +1,12 @@
 import { getCurrentUser } from "@/lib/auth";
-import { getAllUsers, getProjects, getStats } from "@/lib/services";
+import { getProjects, getStats } from "@/lib/services";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import ProjectFeed from "@/components/ProjectFeed";
 
 export default async function HomePage() {
-  const [currentUser, demoUsers, stats] = await Promise.all([
+  const [currentUser, stats] = await Promise.all([
     getCurrentUser(),
-    getAllUsers(),
     getStats(),
   ]);
 
@@ -17,7 +16,7 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#08090e]">
-      <Navbar currentUser={currentUser} demoUsers={demoUsers} />
+      <Navbar currentUser={currentUser} />
       
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pb-20">
         <HeroSection stats={stats} />
@@ -25,7 +24,6 @@ export default async function HomePage() {
         <div className="mt-8">
           <ProjectFeed
             initialProjects={projects}
-            demoUsers={demoUsers}
             currentUser={currentUser}
           />
         </div>

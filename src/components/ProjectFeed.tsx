@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import FilterBar from "./FilterBar";
 import ProjectCard from "./ProjectCard";
 import AuthModal from "./AuthModal";
@@ -9,19 +10,26 @@ import { Sparkles } from "lucide-react";
 
 interface ProjectFeedProps {
   initialProjects: ProjectWithAuthor[];
-  demoUsers: Omit<DbUser, "password_hash">[];
   currentUser: Omit<DbUser, "password_hash"> | null;
 }
 
 export default function ProjectFeed({
   initialProjects,
-  demoUsers,
   currentUser,
 }: ProjectFeedProps) {
+  const searchParams = useSearchParams();
+  const urlTag = searchParams?.get("tag");
+
   const [sort, setSort] = useState<"trending" | "recent" | "stars" | "views">("trending");
-  const [tag, setTag] = useState<string>("All");
+  const [tag, setTag] = useState<string>(urlTag || "All");
   const [search, setSearch] = useState<string>("");
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (urlTag) {
+      setTag(urlTag);
+    }
+  }, [urlTag]);
 
   // Client-side filtering & sorting for instantaneous responsiveness
   const filteredProjects = useMemo(() => {
@@ -105,6 +113,7 @@ export default function ProjectFeed({
               key={project.id}
               project={project}
               onRequireAuth={() => setIsAuthModalOpen(true)}
+              onTagClick={(t) => setTag(t)}
             />
           ))}
         </div>
@@ -114,7 +123,6 @@ export default function ProjectFeed({
         <AuthModal
           isOpen={isAuthModalOpen}
           onClose={() => setIsAuthModalOpen(false)}
-          demoUsers={demoUsers}
         />
       )}
     </div>

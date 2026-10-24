@@ -12,14 +12,12 @@ interface DetailActionButtonsProps {
   project: ProjectWithAuthor;
   isAuthor: boolean;
   currentUser: Omit<DbUser, "password_hash"> | null;
-  demoUsers: Omit<DbUser, "password_hash">[];
 }
 
 export default function DetailActionButtons({
   project,
   isAuthor,
   currentUser,
-  demoUsers,
 }: DetailActionButtonsProps) {
   const router = useRouter();
   const [hasStarred, setHasStarred] = useState(project.has_starred ?? false);
@@ -118,7 +116,6 @@ export default function DetailActionButtons({
         <AuthModal
           isOpen={isAuthOpen}
           onClose={() => setIsAuthOpen(false)}
-          demoUsers={demoUsers}
         />
       )}
     </>

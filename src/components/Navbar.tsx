@@ -2,8 +2,8 @@
 
 import { useState, useTransition, useRef, useEffect } from "react";
 import Link from "next/link";
-import { Sparkles, Plus, LogIn, LogOut, User as UserIcon, Code2, Users, ChevronDown, Check } from "lucide-react";
-import { switchDemoUserAction, logoutAction } from "@/app/actions";
+import { Sparkles, Plus, LogIn, LogOut, User as UserIcon, Code2, ChevronDown } from "lucide-react";
+import { logoutAction } from "@/app/actions";
 import { DbUser } from "@/lib/db";
 import { useToast } from "./Toast";
 import ProjectModalStudio from "./ProjectModalStudio";
@@ -11,27 +11,21 @@ import AuthModal from "./AuthModal";
 
 interface NavbarProps {
   currentUser: Omit<DbUser, "password_hash"> | null;
-  demoUsers: Omit<DbUser, "password_hash">[];
 }
 
-export default function Navbar({ currentUser, demoUsers }: NavbarProps) {
+export default function Navbar({ currentUser }: NavbarProps) {
   const [isPending, startTransition] = useTransition();
   const [isPublishOpen, setIsPublishOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [isDemoDropdownOpen, setIsDemoDropdownOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const { toast } = useToast();
 
-  const demoDropdownRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdowns on outside click or Escape key
+  // Close dropdown on outside click or Escape key
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent | TouchEvent) => {
       const target = event.target as Node;
-      if (demoDropdownRef.current && !demoDropdownRef.current.contains(target)) {
-        setIsDemoDropdownOpen(false);
-      }
       if (userMenuRef.current && !userMenuRef.current.contains(target)) {
         setIsUserMenuOpen(false);
       }
@@ -39,7 +33,6 @@ export default function Navbar({ currentUser, demoUsers }: NavbarProps) {
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        setIsDemoDropdownOpen(false);
         setIsUserMenuOpen(false);
       }
     };
@@ -54,19 +47,6 @@ export default function Navbar({ currentUser, demoUsers }: NavbarProps) {
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
-
-  const handleSwitchUser = (user: Omit<DbUser, "password_hash">) => {
-    startTransition(async () => {
-      await switchDemoUserAction(user.id);
-      setIsDemoDropdownOpen(false);
-      toast({
-        title: `Switched Persona to ${user.name}`,
-        message: `Now acting as ${user.role} (@${user.username})`,
-        type: "success",
-        avatar: user.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${user.username}`,
-      });
-    });
-  };
 
   const handleLogout = () => {
     startTransition(async () => {
@@ -102,69 +82,9 @@ export default function Navbar({ currentUser, demoUsers }: NavbarProps) {
             </div>
           </Link>
 
-          {/* Quick-Switch Demo Persona Dropdown with outside-click ref */}
-          <div className="relative" ref={demoDropdownRef}>
-            <button
-              onClick={() => {
-                setIsDemoDropdownOpen((prev) => !prev);
-                setIsUserMenuOpen(false);
-              }}
-              className={`hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
-                isDemoDropdownOpen
-                  ? "bg-violet-600/20 border-violet-500/50 text-white shadow-md shadow-violet-600/20"
-                  : "bg-white/[0.04] hover:bg-white/[0.08] border-white/[0.08] text-slate-300 hover:text-white"
-              }`}
-              title="Quick-switch between demo creator personas"
-            >
-              <Users className="w-3.5 h-3.5 text-violet-400" />
-              <span>Switch Persona</span>
-              <ChevronDown className={`w-3 h-3 text-slate-400 transition-transform duration-200 ${isDemoDropdownOpen ? "rotate-180 text-violet-400" : ""}`} />
-            </button>
-
-            {isDemoDropdownOpen && (
-              <div className="absolute left-0 mt-2 w-72 rounded-2xl bg-[#0f121d]/95 border border-white/10 shadow-2xl py-2 z-50 backdrop-blur-2xl animate-dropdown">
-                <div className="px-3.5 py-1.5 border-b border-white/[0.06] flex items-center justify-between text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-                  <span>Demo Personas</span>
-                  <span className="text-[10px] text-violet-400 font-mono">1-Click</span>
-                </div>
-                <div className="max-h-64 overflow-y-auto py-1">
-                  {demoUsers.map((u) => {
-                    const isCurrent = currentUser?.id === u.id;
-                    return (
-                      <button
-                        key={u.id}
-                        disabled={isPending}
-                        onClick={() => handleSwitchUser(u)}
-                        className={`w-full px-3.5 py-2.5 text-left flex items-center gap-3 hover:bg-violet-600/15 transition-all group ${
-                          isCurrent ? "bg-violet-600/20 border-l-2 border-violet-500" : ""
-                        }`}
-                      >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={u.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${u.username}`}
-                          alt={u.name}
-                          className="w-8 h-8 rounded-full object-cover border border-white/10 group-hover:scale-105 transition-transform"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs font-semibold text-white truncate group-hover:text-violet-300 transition-colors">
-                              {u.name}
-                            </span>
-                            {isCurrent && <Check className="w-3.5 h-3.5 text-violet-400 shrink-0" />}
-                          </div>
-                          <span className="text-[11px] text-slate-400 truncate block">{u.role}</span>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-          </div>
-
           {/* Right Actions */}
           <div className="flex items-center gap-3">
-            {/* Publish Project CTA with hover glow */}
+            {/* Publish Project CTA */}
             <button
               onClick={() => {
                 if (!currentUser) {
@@ -184,10 +104,7 @@ export default function Navbar({ currentUser, demoUsers }: NavbarProps) {
             {currentUser ? (
               <div className="relative" ref={userMenuRef}>
                 <button
-                  onClick={() => {
-                    setIsUserMenuOpen((prev) => !prev);
-                    setIsDemoDropdownOpen(false);
-                  }}
+                  onClick={() => setIsUserMenuOpen((prev) => !prev)}
                   className={`flex items-center gap-2 pl-2 pr-2.5 py-1 rounded-full border transition-all ${
                     isUserMenuOpen
                       ? "bg-violet-600/20 border-violet-500/50 shadow-md shadow-violet-600/20"
@@ -221,6 +138,7 @@ export default function Navbar({ currentUser, demoUsers }: NavbarProps) {
                       <span>My Profile & Projects</span>
                     </Link>
                     <button
+                      disabled={isPending}
                       onClick={handleLogout}
                       className="w-full px-4 py-2 text-left flex items-center gap-2 text-xs text-rose-400 hover:bg-rose-500/10 transition-colors"
                     >
@@ -233,7 +151,7 @@ export default function Navbar({ currentUser, demoUsers }: NavbarProps) {
             ) : (
               <button
                 onClick={() => setIsAuthOpen(true)}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-xs font-medium text-slate-200 hover:text-white hover:border-violet-500/40 transition-all"
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-xs font-medium text-slate-200 hover:text-white hover:border-violet-500/40 transition-all cursor-pointer"
               >
                 <LogIn className="w-3.5 h-3.5 text-violet-400" />
                 <span>Sign In</span>
@@ -243,7 +161,7 @@ export default function Navbar({ currentUser, demoUsers }: NavbarProps) {
         </div>
       </header>
 
-      {/* Modals with smooth animation */}
+      {/* Modals */}
       {isPublishOpen && (
         <ProjectModalStudio
           isOpen={isPublishOpen}
@@ -256,7 +174,6 @@ export default function Navbar({ currentUser, demoUsers }: NavbarProps) {
         <AuthModal
           isOpen={isAuthOpen}
           onClose={() => setIsAuthOpen(false)}
-          demoUsers={demoUsers}
         />
       )}
     </>

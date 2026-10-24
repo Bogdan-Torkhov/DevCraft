@@ -2,7 +2,42 @@
 
 import { revalidatePath } from "next/cache";
 import { getCurrentUser, switchDemoUser, destroySession, loginWithCredentials, registerUser } from "@/lib/auth";
-import { toggleStar, addComment, createProject, deleteProject } from "@/lib/services";
+import { toggleStar, addComment, createProject, deleteProject, updateUserProfile } from "@/lib/services";
+
+export async function updateProfileAction(formData: FormData) {
+  const user = await getCurrentUser();
+  if (!user) {
+    return { error: "Unauthorized" };
+  }
+
+  const name = formData.get("name") as string;
+  const role = formData.get("role") as string;
+  const bio = formData.get("bio") as string;
+  const avatarUrl = formData.get("avatarUrl") as string;
+  const githubUrl = formData.get("githubUrl") as string;
+  const websiteUrl = formData.get("websiteUrl") as string;
+
+  if (!name || !name.trim()) {
+    return { error: "Name cannot be empty" };
+  }
+
+  const success = updateUserProfile(user.id, {
+    name,
+    role,
+    bio,
+    avatarUrl,
+    githubUrl,
+    websiteUrl,
+  });
+
+  if (!success) {
+    return { error: "Failed to update profile" };
+  }
+
+  revalidatePath("/", "layout");
+  revalidatePath(`/creators/${user.username}`);
+  return { success: true };
+}
 
 export async function toggleStarAction(projectId: string) {
   const user = await getCurrentUser();

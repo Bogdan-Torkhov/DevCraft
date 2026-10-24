@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Play, Code2, Copy, Check, RotateCw, Monitor, Tablet, Smartphone, Maximize2 } from "lucide-react";
+import { Play, Code2, Copy, Check, RotateCw, Monitor, Tablet, Smartphone, Maximize2, Palette } from "lucide-react";
 import { useToast } from "./Toast";
+import SyntaxHighlighter, { CodeThemeId, CODE_THEMES } from "./SyntaxHighlighter";
 
 interface CodeSandboxViewerProps {
   codeSnippet: string;
@@ -15,6 +16,8 @@ export default function CodeSandboxViewer({ codeSnippet, title }: CodeSandboxVie
   const [copied, setCopied] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [codeTheme, setCodeTheme] = useState<CodeThemeId>("dracula");
+  const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
   const { toast } = useToast();
 
   const handleCopy = () => {
@@ -114,22 +117,66 @@ export default function CodeSandboxViewer({ codeSnippet, title }: CodeSandboxVie
           )}
 
           {activeTab === "code" && (
-            <button
-              onClick={handleCopy}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] text-xs font-medium text-slate-300 hover:text-white transition-colors"
-            >
-              {copied ? (
-                <>
-                  <Check className="w-3.5 h-3.5 text-emerald-400" />
-                  <span className="text-emerald-400">Copied!</span>
-                </>
-              ) : (
-                <>
-                  <Copy className="w-3.5 h-3.5 text-slate-400" />
-                  <span>Copy Code</span>
-                </>
-              )}
-            </button>
+            <div className="flex items-center gap-2">
+              {/* Theme Selector Dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => setIsThemeMenuOpen(!isThemeMenuOpen)}
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] text-xs font-medium text-slate-300 hover:text-white transition-colors"
+                >
+                  <Palette className="w-3.5 h-3.5 text-violet-400" />
+                  <span>Theme: {CODE_THEMES[codeTheme].name}</span>
+                </button>
+
+                {isThemeMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-44 rounded-xl bg-[#0f121d] border border-white/10 shadow-2xl py-1.5 z-50 animate-dropdown">
+                    {(Object.keys(CODE_THEMES) as CodeThemeId[]).map((tId) => (
+                      <button
+                        key={tId}
+                        onClick={() => {
+                          setCodeTheme(tId);
+                          setIsThemeMenuOpen(false);
+                          toast({
+                            title: `Theme Changed: ${CODE_THEMES[tId].name}`,
+                            type: "info",
+                          });
+                        }}
+                        className={`w-full px-3 py-1.5 text-left text-xs flex items-center justify-between hover:bg-white/[0.06] transition-colors ${
+                          codeTheme === tId ? "text-violet-400 font-semibold" : "text-slate-300"
+                        }`}
+                      >
+                        <span className="flex items-center gap-2">
+                          <span
+                            className="w-2.5 h-2.5 rounded-full"
+                            style={{ backgroundColor: CODE_THEMES[tId].tag }}
+                          />
+                          {CODE_THEMES[tId].name}
+                        </span>
+                        {codeTheme === tId && <Check className="w-3 h-3 text-violet-400" />}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Copy Code */}
+              <button
+                onClick={handleCopy}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] text-xs font-medium text-slate-300 hover:text-white transition-colors"
+              >
+                {copied ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-400" />
+                    <span className="text-emerald-400">Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Copy Code</span>
+                  </>
+                )}
+              </button>
+            </div>
           )}
 
           {/* Fullscreen Toggle */}
@@ -160,10 +207,8 @@ export default function CodeSandboxViewer({ codeSnippet, title }: CodeSandboxVie
             </div>
           </div>
         ) : (
-          <div className="w-full h-full overflow-auto p-4 font-mono text-xs text-slate-300 bg-[#07080d] leading-relaxed select-text">
-            <pre>
-              <code>{codeSnippet}</code>
-            </pre>
+          <div className="w-full h-full overflow-hidden">
+            <SyntaxHighlighter code={codeSnippet} themeId={codeTheme} />
           </div>
         )}
       </div>
@@ -172,7 +217,7 @@ export default function CodeSandboxViewer({ codeSnippet, title }: CodeSandboxVie
       <div className="px-4 py-2 border-t border-white/[0.06] bg-[#090b12] flex items-center justify-between text-[11px] text-slate-500 font-mono">
         <span className="flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          Sandboxed DOM Execution
+          {activeTab === "sandbox" ? "Sandboxed DOM Execution" : `Theme: ${CODE_THEMES[codeTheme].name}`}
         </span>
         <span>HTML5 • CSS3 • JavaScript</span>
       </div>

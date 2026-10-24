@@ -1,29 +1,22 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { X, Sparkles, Users, LogIn, UserPlus, Check } from "lucide-react";
-import { DbUser } from "@/lib/db";
-import { switchDemoUserAction, loginAction, registerAction } from "@/app/actions";
+import { X, Sparkles, LogIn, UserPlus } from "lucide-react";
+import { loginAction, registerAction } from "@/app/actions";
+import { useToast } from "./Toast";
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  demoUsers: Omit<DbUser, "password_hash">[];
 }
 
-export default function AuthModal({ isOpen, onClose, demoUsers }: AuthModalProps) {
-  const [tab, setTab] = useState<"demo" | "login" | "register">("demo");
+export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
+  const [tab, setTab] = useState<"login" | "register">("login");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   if (!isOpen) return null;
-
-  const handleDemoSwitch = (userId: string) => {
-    startTransition(async () => {
-      await switchDemoUserAction(userId);
-      onClose();
-    });
-  };
 
   const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -34,6 +27,11 @@ export default function AuthModal({ isOpen, onClose, demoUsers }: AuthModalProps
       if (res.error) {
         setError(res.error);
       } else {
+        toast({
+          title: "Welcome Back!",
+          message: "You are now signed in.",
+          type: "success",
+        });
         onClose();
       }
     });
@@ -48,6 +46,11 @@ export default function AuthModal({ isOpen, onClose, demoUsers }: AuthModalProps
       if (res.error) {
         setError(res.error);
       } else {
+        toast({
+          title: "Account Created!",
+          message: "Welcome to the DevCraft creator community.",
+          type: "success",
+        });
         onClose();
       }
     });
@@ -74,34 +77,26 @@ export default function AuthModal({ isOpen, onClose, demoUsers }: AuthModalProps
         {/* Tab switchers */}
         <div className="px-6 pt-4 pb-2 border-b border-white/[0.06] bg-[#090b12] flex items-center gap-1">
           <button
-            onClick={() => { setTab("demo"); setError(null); }}
-            className={`flex-1 py-2 text-center rounded-lg text-xs font-semibold transition-all ${
-              tab === "demo"
-                ? "bg-violet-600 text-white shadow-md shadow-violet-600/30"
-                : "text-slate-400 hover:text-slate-200"
-            }`}
-          >
-            1-Click Demo
-          </button>
-          <button
             onClick={() => { setTab("login"); setError(null); }}
-            className={`flex-1 py-2 text-center rounded-lg text-xs font-semibold transition-all ${
+            className={`flex-1 py-2 text-center rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${
               tab === "login"
                 ? "bg-violet-600 text-white shadow-md shadow-violet-600/30"
                 : "text-slate-400 hover:text-slate-200"
             }`}
           >
-            Sign In
+            <LogIn className="w-3.5 h-3.5" />
+            <span>Sign In</span>
           </button>
           <button
             onClick={() => { setTab("register"); setError(null); }}
-            className={`flex-1 py-2 text-center rounded-lg text-xs font-semibold transition-all ${
+            className={`flex-1 py-2 text-center rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${
               tab === "register"
                 ? "bg-violet-600 text-white shadow-md shadow-violet-600/30"
                 : "text-slate-400 hover:text-slate-200"
             }`}
           >
-            Sign Up
+            <UserPlus className="w-3.5 h-3.5" />
+            <span>Create Account</span>
           </button>
         </div>
 
@@ -110,40 +105,6 @@ export default function AuthModal({ isOpen, onClose, demoUsers }: AuthModalProps
           {error && (
             <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs text-rose-300">
               {error}
-            </div>
-          )}
-
-          {tab === "demo" && (
-            <div className="space-y-3">
-              <p className="text-xs text-slate-400 mb-2">
-                Instantly explore DevCraft as a pre-configured creator persona with existing projects and stars:
-              </p>
-              {demoUsers.map((u) => (
-                <button
-                  key={u.id}
-                  disabled={isPending}
-                  onClick={() => handleDemoSwitch(u.id)}
-                  className="w-full p-3 rounded-xl bg-white/[0.03] hover:bg-violet-600/15 border border-white/[0.06] hover:border-violet-500/40 text-left flex items-center gap-3.5 transition-all group cursor-pointer"
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={u.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${u.username}`}
-                    alt={u.name}
-                    className="w-10 h-10 rounded-full object-cover border border-white/10"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-white group-hover:text-violet-300 transition-colors">
-                        {u.name}
-                      </span>
-                      <span className="text-[10px] text-violet-400 font-semibold group-hover:translate-x-0.5 transition-transform">
-                        Select →
-                      </span>
-                    </div>
-                    <span className="text-[11px] text-slate-400 block truncate">{u.role}</span>
-                  </div>
-                </button>
-              ))}
             </div>
           )}
 
@@ -157,20 +118,20 @@ export default function AuthModal({ isOpen, onClose, demoUsers }: AuthModalProps
                   name="emailOrUsername"
                   type="text"
                   required
-                  placeholder="elena@devcraft.io or elena_design"
+                  placeholder="name@example.com or username"
                   className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs text-white placeholder-slate-500 outline-none focus:border-violet-500"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Password (Demo password: devcraft123)
+                  Password
                 </label>
                 <input
                   name="password"
                   type="password"
                   required
-                  defaultValue="devcraft123"
+                  placeholder="••••••••"
                   className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs text-white placeholder-slate-500 outline-none focus:border-violet-500"
                 />
               </div>
@@ -182,62 +143,85 @@ export default function AuthModal({ isOpen, onClose, demoUsers }: AuthModalProps
               >
                 {isPending ? "Authenticating..." : "Sign In to DevCraft"}
               </button>
+
+              <p className="text-[11px] text-slate-500 text-center pt-2">
+                Don&apos;t have an account?{" "}
+                <button
+                  type="button"
+                  onClick={() => setTab("register")}
+                  className="text-violet-400 hover:underline font-medium"
+                >
+                  Create one now
+                </button>
+              </p>
             </form>
           )}
 
           {tab === "register" && (
             <form onSubmit={handleRegister} className="space-y-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Full Name</label>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Full Name *</label>
                 <input
                   name="name"
                   type="text"
                   required
-                  placeholder="Ada Lovelace"
+                  placeholder="Sarah Connor"
                   className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs text-white placeholder-slate-500 outline-none focus:border-violet-500"
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Username</label>
-                <input
-                  name="username"
-                  type="text"
-                  required
-                  placeholder="ada_code"
-                  className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs text-white placeholder-slate-500 outline-none focus:border-violet-500"
-                />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Username *</label>
+                  <input
+                    name="username"
+                    type="text"
+                    required
+                    placeholder="sarah_dev"
+                    className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs text-white placeholder-slate-500 outline-none focus:border-violet-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Role / Headline</label>
+                  <input
+                    name="role"
+                    type="text"
+                    placeholder="Frontend Engineer"
+                    className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs text-white placeholder-slate-500 outline-none focus:border-violet-500"
+                  />
+                </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Email</label>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Email *</label>
                 <input
                   name="email"
                   type="email"
                   required
-                  placeholder="ada@example.com"
+                  placeholder="sarah@example.com"
                   className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs text-white placeholder-slate-500 outline-none focus:border-violet-500"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Password</label>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Password *</label>
                 <input
                   name="password"
                   type="password"
                   required
-                  placeholder="••••••••"
+                  placeholder="Minimum 6 characters"
                   className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs text-white placeholder-slate-500 outline-none focus:border-violet-500"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Role / Headline</label>
-                <input
-                  name="role"
-                  type="text"
-                  placeholder="e.g. Creative Technologist"
-                  className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs text-white placeholder-slate-500 outline-none focus:border-violet-500"
+                <label className="block text-xs font-semibold text-slate-300 mb-1">About Me / Bio</label>
+                <textarea
+                  name="bio"
+                  rows={2}
+                  placeholder="Tell the community about what you design or build..."
+                  className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs text-white placeholder-slate-500 outline-none focus:border-violet-500 resize-none"
                 />
               </div>
 
@@ -246,7 +230,7 @@ export default function AuthModal({ isOpen, onClose, demoUsers }: AuthModalProps
                 disabled={isPending}
                 className="w-full mt-2 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-xs font-semibold shadow-md shadow-violet-600/30 transition-all cursor-pointer disabled:opacity-50"
               >
-                {isPending ? "Creating Account..." : "Create Free Account"}
+                {isPending ? "Creating Account..." : "Create Account"}
               </button>
             </form>
           )}
