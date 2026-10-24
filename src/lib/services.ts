@@ -264,6 +264,40 @@ export function addComment(projectId: string, userId: string, content: string): 
   return toPlain(row);
 }
 
+export function updateComment(commentId: string, userId: string, content: string): DbComment | null {
+  const db = getDb();
+  const res = db.prepare("UPDATE comments SET content = ? WHERE id = ? AND user_id = ?").run(
+    content.trim(),
+    commentId,
+    userId
+  );
+  if ((res.changes ?? 0) === 0) return null;
+
+  const query = `
+    SELECT 
+      c.id,
+      c.content,
+      c.project_id,
+      c.user_id,
+      c.created_at,
+      u.name AS user_name,
+      u.username AS user_username,
+      u.avatar_url AS user_avatar,
+      u.role AS user_role
+    FROM comments c
+    JOIN users u ON c.user_id = u.id
+    WHERE c.id = ?
+  `;
+  const row = db.prepare(query).get(commentId) as unknown as DbComment;
+  return toPlain(row);
+}
+
+export function deleteComment(commentId: string, userId: string): boolean {
+  const db = getDb();
+  const res = db.prepare("DELETE FROM comments WHERE id = ? AND user_id = ?").run(commentId, userId);
+  return (res.changes ?? 0) > 0;
+}
+
 export function createProject(data: {
   title: string;
   tagline: string;

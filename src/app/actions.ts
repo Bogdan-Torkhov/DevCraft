@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { getCurrentUser, switchDemoUser, destroySession, loginWithCredentials, registerUser } from "@/lib/auth";
-import { toggleStar, addComment, createProject, deleteProject, updateUserProfile } from "@/lib/services";
+import { toggleStar, addComment, updateComment, deleteComment, createProject, deleteProject, updateUserProfile } from "@/lib/services";
 
 export async function updateProfileAction(formData: FormData) {
   const user = await getCurrentUser();
@@ -64,6 +64,39 @@ export async function addCommentAction(projectId: string, content: string) {
   const comment = addComment(projectId, user.id, content);
   revalidatePath(`/projects/${projectId}`);
   return { success: true, comment };
+}
+
+export async function updateCommentAction(commentId: string, content: string, projectId: string) {
+  const user = await getCurrentUser();
+  if (!user) {
+    return { error: "Please sign in to edit comments" };
+  }
+  if (!content || !content.trim()) {
+    return { error: "Comment cannot be empty" };
+  }
+
+  const updated = updateComment(commentId, user.id, content);
+  if (!updated) {
+    return { error: "Failed to update comment or not authorized" };
+  }
+
+  revalidatePath(`/projects/${projectId}`);
+  return { success: true, comment: updated };
+}
+
+export async function deleteCommentAction(commentId: string, projectId: string) {
+  const user = await getCurrentUser();
+  if (!user) {
+    return { error: "Please sign in to delete comments" };
+  }
+
+  const deleted = deleteComment(commentId, user.id);
+  if (!deleted) {
+    return { error: "Failed to delete comment or not authorized" };
+  }
+
+  revalidatePath(`/projects/${projectId}`);
+  return { success: true };
 }
 
 export async function switchDemoUserAction(userId: string) {
