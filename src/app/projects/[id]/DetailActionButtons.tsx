@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Star, Trash2 } from "lucide-react";
 import { ProjectWithAuthor, DbUser } from "@/lib/db";
 import { toggleStarAction, deleteProjectAction } from "@/app/actions";
+import { useToast } from "@/components/Toast";
 import AuthModal from "@/components/AuthModal";
 
 interface DetailActionButtonsProps {
@@ -23,8 +24,10 @@ export default function DetailActionButtons({
   const router = useRouter();
   const [hasStarred, setHasStarred] = useState(project.has_starred ?? false);
   const [starsCount, setStarsCount] = useState(project.stars_count);
+  const [isStarPopping, setIsStarPopping] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const { toast } = useToast();
 
   const handleStar = () => {
     if (!currentUser) {
@@ -35,6 +38,16 @@ export default function DetailActionButtons({
     const nextStarred = !hasStarred;
     setHasStarred(nextStarred);
     setStarsCount((prev) => (nextStarred ? prev + 1 : Math.max(0, prev - 1)));
+    setIsStarPopping(true);
+    setTimeout(() => setIsStarPopping(false), 400);
+
+    if (nextStarred) {
+      toast({
+        title: `Starred ${project.title}`,
+        message: "Your endorsement was recorded in the database! ⭐",
+        type: "success",
+      });
+    }
 
     startTransition(async () => {
       const res = await toggleStarAction(project.id);
@@ -54,6 +67,11 @@ export default function DetailActionButtons({
     startTransition(async () => {
       const res = await deleteProjectAction(project.id);
       if (res.success) {
+        toast({
+          title: "Project Deleted",
+          message: "The showcase was removed from DevCraft.",
+          type: "info",
+        });
         router.push("/");
       }
     });
@@ -62,7 +80,7 @@ export default function DetailActionButtons({
   return (
     <>
       <div className="flex items-center gap-3">
-        {/* Star CTA */}
+        {/* Star CTA with pop animation */}
         <button
           onClick={handleStar}
           disabled={isPending}
@@ -73,8 +91,8 @@ export default function DetailActionButtons({
           }`}
         >
           <Star
-            className={`w-4 h-4 ${
-              hasStarred ? "fill-amber-400 text-amber-400" : "text-slate-400"
+            className={`w-4 h-4 transition-transform ${
+              isStarPopping ? "animate-star-pop fill-amber-400 text-amber-400" : hasStarred ? "fill-amber-400 text-amber-400" : "text-slate-400"
             }`}
           />
           <span>{hasStarred ? "Starred" : "Star Project"}</span>

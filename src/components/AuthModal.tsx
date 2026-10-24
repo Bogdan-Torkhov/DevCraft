@@ -55,7 +55,7 @@ export default function AuthModal({ isOpen, onClose, demoUsers }: AuthModalProps
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-      <div className="w-full max-w-md rounded-2xl bg-[#0c0e17] border border-white/10 shadow-2xl overflow-hidden flex flex-col">
+      <div className="w-full max-w-md rounded-2xl bg-[#0c0e17] border border-white/10 shadow-2xl overflow-hidden flex flex-col animate-modal">
         
         {/* Header */}
         <div className="px-6 py-4 border-b border-white/[0.08] flex items-center justify-between">

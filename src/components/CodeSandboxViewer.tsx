@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Play, Code2, Copy, Check, RotateCw, Monitor, Tablet, Smartphone, Maximize2 } from "lucide-react";
+import { useToast } from "./Toast";
 
 interface CodeSandboxViewerProps {
   codeSnippet: string;
@@ -14,10 +15,16 @@ export default function CodeSandboxViewer({ codeSnippet, title }: CodeSandboxVie
   const [copied, setCopied] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const { toast } = useToast();
 
   const handleCopy = () => {
     navigator.clipboard.writeText(codeSnippet);
     setCopied(true);
+    toast({
+      title: "Code Copied to Clipboard",
+      message: "Ready to paste into your local editor or sandbox.",
+      type: "success",
+    });
     setTimeout(() => setCopied(false), 2000);
   };
 

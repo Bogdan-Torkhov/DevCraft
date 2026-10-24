@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { MessageSquare, Send, Sparkles } from "lucide-react";
 import { DbComment, DbUser } from "@/lib/db";
 import { addCommentAction } from "@/app/actions";
+import { useToast } from "./Toast";
 
 interface CommentSectionProps {
   projectId: string;
@@ -22,6 +23,7 @@ export default function CommentSection({
   const [newComment, setNewComment] = useState("");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,6 +43,11 @@ export default function CommentSection({
       } else if (res.comment) {
         setComments((prev) => [...prev, res.comment]);
         setNewComment("");
+        toast({
+          title: "Feedback Published",
+          message: "Your thoughts were shared with the author and community.",
+          type: "success",
+        });
       }
     });
   };
