@@ -89,32 +89,49 @@ export async function registerUser(data: {
 }): Promise<{ success: boolean; error?: string; user?: Omit<DbUser, "password_hash"> }> {
   const db = getDb();
 
-  const existingEmail = db.prepare("SELECT id FROM users WHERE email = ?").get(data.email);
+  const cleanUsername = data.username.toLowerCase().trim();
+  if (!/^[a-z0-9_-]{3,30}$/.test(cleanUsername)) {
+    return {
+      success: false,
+      error: "Username must be 3-30 characters (letters, numbers, underscores, hyphens only)",
+    };
+  }
+
+  const cleanEmail = data.email.toLowerCase().trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+    return { success: false, error: "Please enter a valid email address" };
+  }
+
+  if (!data.password || data.password.length < 6) {
+    return { success: false, error: "Password must be at least 6 characters" };
+  }
+
+  const existingEmail = db.prepare("SELECT id FROM users WHERE email = ?").get(cleanEmail);
   if (existingEmail) {
     return { success: false, error: "Email is already taken" };
   }
 
-  const existingUsername = db.prepare("SELECT id FROM users WHERE username = ?").get(data.username);
+  const existingUsername = db.prepare("SELECT id FROM users WHERE username = ?").get(cleanUsername);
   if (existingUsername) {
     return { success: false, error: "Username is already taken" };
   }
 
   const id = "usr_" + crypto.randomUUID().slice(0, 8);
   const passwordHash = await bcrypt.hash(data.password, 10);
-  const avatarUrl = `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(data.username)}`;
+  const avatarUrl = `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(cleanUsername)}`;
 
   db.prepare(`
     INSERT INTO users (id, username, name, email, password_hash, avatar_url, bio, role)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     id,
-    data.username.toLowerCase().trim(),
-    data.name.trim(),
-    data.email.toLowerCase().trim(),
+    cleanUsername,
+    data.name.trim().slice(0, 80),
+    cleanEmail,
     passwordHash,
     avatarUrl,
-    data.bio || "Creator on DevCraft",
-    data.role || "Developer"
+    data.bio ? data.bio.trim().slice(0, 2000) : "Creator on DevCraft",
+    data.role ? data.role.trim().slice(0, 80) : "Developer"
   );
 
   await createSession(id);

@@ -416,5 +416,68 @@ describe("DevCraft Core Functions & Engine Automated Tests", () => {
       const ownerRes = db.prepare("DELETE FROM projects WHERE id = ? AND author_id = ?").run("p_secure", "u1");
       assert.equal(ownerRes.changes, 1, "Owner must be able to delete their own project");
     });
+
+    test("validates and sanitizes HTTP/HTTPS URLs against XSS protocols", () => {
+      function isValidHttpUrl(urlStr) {
+        if (!urlStr || !urlStr.trim()) return true;
+        try {
+          const parsed = new URL(urlStr.trim());
+          return parsed.protocol === "http:" || parsed.protocol === "https:";
+        } catch {
+          return false;
+        }
+      }
+
+      // Attack payloads attempting Stored XSS
+      assert.equal(isValidHttpUrl("javascript:alert(document.cookie)"), false, "Must reject javascript: pseudo-protocol");
+      assert.equal(isValidHttpUrl("data:text/html,<script>alert(1)</script>"), false, "Must reject data:text/html protocol");
+      assert.equal(isValidHttpUrl("vbscript:msgbox(1)"), false, "Must reject vbscript: protocol");
+      assert.equal(isValidHttpUrl("jav&#x09;ascript:alert(1)"), false, "Must reject obfuscated protocol");
+      assert.equal(isValidHttpUrl("not-a-url"), false, "Must reject malformed strings");
+
+      // Valid HTTP/HTTPS URLs
+      assert.equal(isValidHttpUrl("https://example.com"), true, "Must accept https");
+      assert.equal(isValidHttpUrl("http://localhost:3000/demo"), true, "Must accept http");
+      assert.equal(isValidHttpUrl(""), true, "Empty optional URL should pass");
+    });
+
+    test("validates avatar URLs, permitting safe Base64 image data and rejecting dangerous payloads", () => {
+      function isValidAvatarUrl(urlStr) {
+        if (!urlStr || !urlStr.trim()) return true;
+        const trimmed = urlStr.trim();
+        if (/^data:image\/(png|jpeg|jpg|webp|gif|svg\+xml);base64,[A-Za-z0-9+/=]+$/.test(trimmed)) {
+          return trimmed.length <= 1_000_000;
+        }
+        try {
+          const parsed = new URL(trimmed);
+          return parsed.protocol === "http:" || parsed.protocol === "https:";
+        } catch {
+          return false;
+        }
+      }
+
+      // Safe Base64 avatar (e.g. from file upload)
+      const sampleBase64Webp = "data:image/webp;base64,UklGRkAAAABXRUJQVlA4IDQAAADwAQCdASoBAAEAAkA4JaQAA3AA/vv9gAA=";
+      const sampleBase64Png = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
+      assert.equal(isValidAvatarUrl(sampleBase64Webp), true, "Valid webp base64 must pass");
+      assert.equal(isValidAvatarUrl(sampleBase64Png), true, "Valid png base64 must pass");
+      assert.equal(isValidAvatarUrl("https://images.unsplash.com/photo-avatar"), true, "Valid https avatar must pass");
+
+      // Attack vectors
+      assert.equal(isValidAvatarUrl("data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg=="), false, "Must reject data:text/html base64");
+      assert.equal(isValidAvatarUrl("javascript:evil()"), false, "Must reject javascript: in avatar URL");
+    });
+
+    test("persists Base64 uploaded avatar in SQLite database and retrieves it intact", () => {
+      const sampleBase64 = "data:image/webp;base64,UklGRkAAAABXRUJQVlA4IDQAAADwAQCdASoBAAEAAkA4JaQAA3AA/vv9gAA=";
+      db.prepare(`
+        INSERT INTO users (id, username, name, email, password_hash, avatar_url)
+        VALUES ('u_avatar', 'photouser', 'Photo User', 'photo@example.com', 'h', ?)
+      `).run(sampleBase64);
+
+      const user = db.prepare("SELECT avatar_url FROM users WHERE id = 'u_avatar'").get();
+      assert.ok(user, "User should be in database");
+      assert.equal(user.avatar_url, sampleBase64, "Base64 avatar must be stored and retrieved intact");
+    });
   });
 });

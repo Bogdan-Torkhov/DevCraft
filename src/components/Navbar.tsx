@@ -96,8 +96,9 @@ export default function Navbar({ currentUser }: NavbarProps) {
               className="relative group overflow-hidden flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-violet-600 hover:scale-[1.02] active:scale-[0.98] text-white text-xs font-semibold shadow-lg shadow-violet-600/25 hover:shadow-violet-600/40 transition-all cursor-pointer"
             >
               <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-              <Plus className="w-3.5 h-3.5" />
-              <span>Publish Project</span>
+              <Plus className="w-3.5 h-3.5 shrink-0" />
+              <span className="hidden sm:inline">Publish Project</span>
+              <span className="sm:hidden">Publish</span>
             </button>
 
             {/* User Profile or Sign In */}

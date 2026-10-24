@@ -96,14 +96,14 @@ export default function ProjectModalStudio({ isOpen, onClose }: ProjectModalStud
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-      <div className="w-full max-w-4xl max-h-[90vh] rounded-2xl bg-[#0c0e17] border border-white/10 shadow-2xl flex flex-col overflow-hidden animate-modal">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+      <div className="w-full max-w-4xl max-h-[92vh] rounded-2xl bg-[#0c0e17] border border-white/10 shadow-2xl flex flex-col overflow-hidden animate-modal">
         
         {/* Modal Header */}
-        <div className="px-6 py-4 border-b border-white/[0.08] flex items-center justify-between">
+        <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-white/[0.08] flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-violet-400" />
-            <h2 className="text-base font-bold text-white">Publish New Project & Live Component</h2>
+            <h2 className="text-sm sm:text-base font-bold text-white truncate">Publish New Project & Live Component</h2>
           </div>
           <button
             onClick={onClose}
@@ -115,8 +115,8 @@ export default function ProjectModalStudio({ isOpen, onClose }: ProjectModalStud
         </div>
 
         {/* Studio Subtabs */}
-        <div className="px-6 py-2 border-b border-white/[0.06] bg-[#090b12] flex items-center justify-between">
-          <div className="flex items-center gap-2">
+        <div className="px-4 sm:px-6 py-2 border-b border-white/[0.06] bg-[#090b12] flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             <button
               onClick={() => setActiveTab("edit")}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
@@ -126,7 +126,8 @@ export default function ProjectModalStudio({ isOpen, onClose }: ProjectModalStud
               }`}
             >
               <Code2 className="w-3.5 h-3.5" />
-              <span>Project Details & Code</span>
+              <span className="hidden sm:inline">Project Details & Code</span>
+              <span className="sm:hidden">Details & Code</span>
             </button>
             <button
               onClick={() => setActiveTab("preview")}
@@ -137,13 +138,14 @@ export default function ProjectModalStudio({ isOpen, onClose }: ProjectModalStud
               }`}
             >
               <Eye className="w-3.5 h-3.5" />
-              <span>Live Sandbox Preview</span>
+              <span className="hidden sm:inline">Live Sandbox Preview</span>
+              <span className="sm:hidden">Preview</span>
             </button>
           </div>
         </div>
 
         {/* Content Body */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           {error && (
             <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs text-rose-300">
               {error}

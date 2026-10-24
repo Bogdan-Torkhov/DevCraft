@@ -70,11 +70,11 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-      <div className="w-full max-w-md rounded-2xl bg-[#0c0e17] border border-white/10 shadow-2xl overflow-hidden flex flex-col animate-modal">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+      <div className="w-full max-w-md max-h-[92vh] rounded-2xl bg-[#0c0e17] border border-white/10 shadow-2xl overflow-hidden flex flex-col animate-modal">
         
         {/* Header */}
-        <div className="px-6 py-4 border-b border-white/[0.08] flex items-center justify-between">
+        <div className="px-5 sm:px-6 py-4 border-b border-white/[0.08] flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-violet-400" />
             <h2 className="text-base font-bold text-white">Join DevCraft Community</h2>
@@ -89,7 +89,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
         </div>
 
         {/* Tab switchers */}
-        <div className="px-6 pt-4 pb-2 border-b border-white/[0.06] bg-[#090b12] flex items-center gap-1">
+        <div className="px-5 sm:px-6 pt-4 pb-2 border-b border-white/[0.06] bg-[#090b12] flex items-center gap-1 shrink-0">
           <button
             onClick={() => { setTab("login"); setError(null); }}
             className={`flex-1 py-2 text-center rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${
@@ -115,7 +115,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
         </div>
 
         {/* Content */}
-        <div className="p-6">
+        <div className="p-5 sm:p-6 overflow-y-auto flex-1">
           {error && (
             <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs text-rose-300">
               {error}

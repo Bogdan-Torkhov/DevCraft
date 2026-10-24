@@ -6,6 +6,7 @@ import { MessageSquare, Send, Sparkles, Edit2, Trash2, Check, X } from "lucide-r
 import { DbComment, DbUser } from "@/lib/db";
 import { addCommentAction, updateCommentAction, deleteCommentAction } from "@/app/actions";
 import { useToast } from "./Toast";
+import ConfirmModal from "./ConfirmModal";
 
 interface CommentSectionProps {
   projectId: string;
@@ -26,6 +27,7 @@ export default function CommentSection({
   const [editContent, setEditContent] = useState("");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [commentToDelete, setCommentToDelete] = useState<string | null>(null);
   const { toast } = useToast();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -89,11 +91,16 @@ export default function CommentSection({
     });
   };
 
-  const handleDelete = (commentId: string) => {
-    if (!confirm("Are you sure you want to delete this comment?")) return;
+  const handleDeleteClick = (commentId: string) => {
+    setCommentToDelete(commentId);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!commentToDelete) return;
+    const targetId = commentToDelete;
 
     startTransition(async () => {
-      const res = await deleteCommentAction(commentId, projectId);
+      const res = await deleteCommentAction(targetId, projectId);
       if (res.error) {
         toast({
           title: "Failed to delete comment",
@@ -101,7 +108,8 @@ export default function CommentSection({
           type: "error",
         });
       } else {
-        setComments((prev) => prev.filter((c) => c.id !== commentId));
+        setComments((prev) => prev.filter((c) => c.id !== targetId));
+        setCommentToDelete(null);
         toast({
           title: "Comment Deleted",
           type: "info",
@@ -237,7 +245,7 @@ export default function CommentSection({
                             <Edit2 className="w-3.5 h-3.5" />
                           </button>
                           <button
-                            onClick={() => handleDelete(c.id)}
+                            onClick={() => handleDeleteClick(c.id)}
                             disabled={isPending}
                             className="p-1.5 min-w-[28px] min-h-[28px] flex items-center justify-center rounded hover:bg-rose-500/10 text-slate-300 hover:text-rose-400 transition-colors"
                             title="Delete comment"
@@ -285,6 +293,18 @@ export default function CommentSection({
           })
         )}
       </div>
+
+      {/* Site-Based Confirmation Modal */}
+      <ConfirmModal
+        isOpen={Boolean(commentToDelete)}
+        title="Delete Comment"
+        message="Are you sure you want to delete this comment? This action is permanent and cannot be undone."
+        confirmText="Delete Comment"
+        cancelText="Cancel"
+        isPending={isPending}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setCommentToDelete(null)}
+      />
     </div>
   );
 }

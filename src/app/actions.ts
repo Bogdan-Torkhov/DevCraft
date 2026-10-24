@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getCurrentUser, destroySession, loginWithCredentials, registerUser } from "@/lib/auth";
 import { toggleStar, addComment, updateComment, deleteComment, createProject, deleteProject, updateUserProfile } from "@/lib/services";
+import { isValidHttpUrl, isValidAvatarUrl } from "@/lib/validation";
 
 export async function updateProfileAction(formData: FormData) {
   const user = await getCurrentUser();
@@ -10,15 +11,33 @@ export async function updateProfileAction(formData: FormData) {
     return { error: "Unauthorized" };
   }
 
-  const name = formData.get("name") as string;
-  const role = formData.get("role") as string;
-  const bio = formData.get("bio") as string;
-  const avatarUrl = formData.get("avatarUrl") as string;
-  const githubUrl = formData.get("githubUrl") as string;
-  const websiteUrl = formData.get("websiteUrl") as string;
+  const name = (formData.get("name") as string)?.trim();
+  const role = (formData.get("role") as string)?.trim() || "Developer";
+  const bio = (formData.get("bio") as string)?.trim() || "";
+  const avatarUrl = (formData.get("avatarUrl") as string)?.trim() || "";
+  const githubUrl = (formData.get("githubUrl") as string)?.trim() || "";
+  const websiteUrl = (formData.get("websiteUrl") as string)?.trim() || "";
 
-  if (!name || !name.trim()) {
+  if (!name) {
     return { error: "Name cannot be empty" };
+  }
+  if (name.length > 80) {
+    return { error: "Name cannot exceed 80 characters" };
+  }
+  if (role.length > 80) {
+    return { error: "Role cannot exceed 80 characters" };
+  }
+  if (bio.length > 2000) {
+    return { error: "Bio cannot exceed 2000 characters" };
+  }
+  if (avatarUrl && !isValidAvatarUrl(avatarUrl)) {
+    return { error: "Invalid avatar format. Please provide a valid HTTP/HTTPS URL or upload an image file." };
+  }
+  if (githubUrl && !isValidHttpUrl(githubUrl)) {
+    return { error: "GitHub URL must start with http:// or https://" };
+  }
+  if (websiteUrl && !isValidHttpUrl(websiteUrl)) {
+    return { error: "Website URL must start with http:// or https://" };
   }
 
   const success = updateUserProfile(user.id, {
@@ -57,11 +76,15 @@ export async function addCommentAction(projectId: string, content: string) {
     return { error: "Please sign in to leave feedback" };
   }
 
-  if (!content || !content.trim()) {
+  const trimmed = content ? content.trim() : "";
+  if (!trimmed) {
     return { error: "Comment cannot be empty" };
   }
+  if (trimmed.length > 2000) {
+    return { error: "Comment cannot exceed 2000 characters" };
+  }
 
-  const comment = addComment(projectId, user.id, content);
+  const comment = addComment(projectId, user.id, trimmed);
   revalidatePath(`/projects/${projectId}`);
   return { success: true, comment };
 }
@@ -71,11 +94,15 @@ export async function updateCommentAction(commentId: string, content: string, pr
   if (!user) {
     return { error: "Please sign in to edit comments" };
   }
-  if (!content || !content.trim()) {
+  const trimmed = content ? content.trim() : "";
+  if (!trimmed) {
     return { error: "Comment cannot be empty" };
   }
+  if (trimmed.length > 2000) {
+    return { error: "Comment cannot exceed 2000 characters" };
+  }
 
-  const updated = updateComment(commentId, user.id, content);
+  const updated = updateComment(commentId, user.id, trimmed);
   if (!updated) {
     return { error: "Failed to update comment or not authorized" };
   }
@@ -169,6 +196,28 @@ export async function createProjectAction(formData: FormData) {
 
   if (!title || !tagline || !description) {
     return { error: "Title, tagline, and description are required" };
+  }
+
+  if (title.length > 120) {
+    return { error: "Title cannot exceed 120 characters" };
+  }
+  if (tagline.length > 250) {
+    return { error: "Tagline cannot exceed 250 characters" };
+  }
+  if (description.length > 10000) {
+    return { error: "Description cannot exceed 10000 characters" };
+  }
+  if (codeSnippet && codeSnippet.length > 100000) {
+    return { error: "Code snippet cannot exceed 100,000 characters" };
+  }
+  if (coverImage && !isValidAvatarUrl(coverImage)) {
+    return { error: "Cover image must be a valid HTTP/HTTPS URL or image data" };
+  }
+  if (demoUrl && !isValidHttpUrl(demoUrl)) {
+    return { error: "Demo URL must start with http:// or https://" };
+  }
+  if (githubUrl && !isValidHttpUrl(githubUrl)) {
+    return { error: "GitHub URL must start with http:// or https://" };
   }
 
   const tags = tagsRaw

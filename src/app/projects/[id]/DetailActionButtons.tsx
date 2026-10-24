@@ -7,6 +7,7 @@ import { ProjectWithAuthor, DbUser } from "@/lib/db";
 import { toggleStarAction, deleteProjectAction } from "@/app/actions";
 import { useToast } from "@/components/Toast";
 import AuthModal from "@/components/AuthModal";
+import ConfirmModal from "@/components/ConfirmModal";
 
 interface DetailActionButtonsProps {
   project: ProjectWithAuthor;
@@ -24,6 +25,7 @@ export default function DetailActionButtons({
   const [starsCount, setStarsCount] = useState(project.stars_count);
   const [isStarPopping, setIsStarPopping] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
 
@@ -59,18 +61,23 @@ export default function DetailActionButtons({
     });
   };
 
-  const handleDelete = () => {
-    if (!confirm("Are you sure you want to delete this project?")) return;
-
+  const handleConfirmDelete = () => {
     startTransition(async () => {
       const res = await deleteProjectAction(project.id);
       if (res.success) {
+        setIsDeleteModalOpen(false);
         toast({
           title: "Project Deleted",
           message: "The showcase was removed from DevCraft.",
           type: "info",
         });
         router.push("/");
+      } else {
+        toast({
+          title: "Failed to delete project",
+          message: res.error || "An error occurred",
+          type: "error",
+        });
       }
     });
   };
@@ -102,10 +109,11 @@ export default function DetailActionButtons({
         {/* Delete button for author */}
         {isAuthor && (
           <button
-            onClick={handleDelete}
+            onClick={() => setIsDeleteModalOpen(true)}
             disabled={isPending}
-            className="p-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 hover:text-rose-300 transition-colors"
+            className="p-2.5 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 hover:text-rose-300 transition-colors"
             title="Delete this project"
+            aria-label="Delete this project"
           >
             <Trash2 className="w-4 h-4" />
           </button>
@@ -118,6 +126,18 @@ export default function DetailActionButtons({
           onClose={() => setIsAuthOpen(false)}
         />
       )}
+
+      {/* Site-Based Confirmation Modal */}
+      <ConfirmModal
+        isOpen={isDeleteModalOpen}
+        title="Delete Project Showcase"
+        message={`Are you sure you want to delete "${project.title}"? All peer comments, star ratings, and runnable sandbox assets will be permanently removed.`}
+        confirmText="Delete Project"
+        cancelText="Keep Project"
+        isPending={isPending}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setIsDeleteModalOpen(false)}
+      />
     </>
   );
 }

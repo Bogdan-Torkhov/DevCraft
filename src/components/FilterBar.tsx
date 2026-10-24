@@ -59,10 +59,10 @@ export default function FilterBar({
         </div>
 
         {/* Sort Tabs */}
-        <div className="flex items-center p-1 rounded-xl bg-white/[0.03] border border-white/[0.08] self-start sm:self-auto">
+        <div className="flex items-center p-1 rounded-xl bg-white/[0.03] border border-white/[0.08] overflow-x-auto max-w-full scrollbar-none self-start sm:self-auto">
           <button
             onClick={() => onSortChange("trending")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all shrink-0 ${
               currentSort === "trending"
                 ? "bg-violet-600 text-white shadow-md shadow-violet-600/30 font-semibold"
                 : "text-slate-400 hover:text-slate-200"
@@ -74,7 +74,7 @@ export default function FilterBar({
 
           <button
             onClick={() => onSortChange("recent")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all shrink-0 ${
               currentSort === "recent"
                 ? "bg-violet-600 text-white shadow-md shadow-violet-600/30 font-semibold"
                 : "text-slate-400 hover:text-slate-200"
@@ -86,7 +86,7 @@ export default function FilterBar({
 
           <button
             onClick={() => onSortChange("stars")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all shrink-0 ${
               currentSort === "stars"
                 ? "bg-violet-600 text-white shadow-md shadow-violet-600/30 font-semibold"
                 : "text-slate-400 hover:text-slate-200"
@@ -98,7 +98,7 @@ export default function FilterBar({
 
           <button
             onClick={() => onSortChange("views")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all shrink-0 ${
               currentSort === "views"
                 ? "bg-violet-600 text-white shadow-md shadow-violet-600/30 font-semibold"
                 : "text-slate-400 hover:text-slate-200"

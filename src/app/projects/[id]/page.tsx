@@ -13,6 +13,16 @@ interface ProjectPageProps {
   params: Promise<{ id: string }>;
 }
 
+function isSafeUrl(url?: string | null): boolean {
+  if (!url) return false;
+  try {
+    const u = new URL(url);
+    return u.protocol === "http:" || u.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
 export default async function ProjectDetailPage({ params }: ProjectPageProps) {
   const { id } = await params;
   const currentUser = await getCurrentUser();
@@ -123,11 +133,11 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
 
               {/* External Links */}
               <div className="pt-4 border-t border-white/[0.06] flex flex-wrap items-center gap-4">
-                {project.demo_url && (
+                {isSafeUrl(project.demo_url) && (
                   <a
-                    href={project.demo_url}
+                    href={project.demo_url!}
                     target="_blank"
-                    rel="noreferrer"
+                    rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-violet-600/15 hover:bg-violet-600/25 border border-violet-500/30 text-xs font-semibold text-violet-300 hover:text-white transition-colors"
                   >
                     <Globe className="w-4 h-4" />
@@ -135,11 +145,11 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
                   </a>
                 )}
 
-                {project.github_url && (
+                {isSafeUrl(project.github_url) && (
                   <a
-                    href={project.github_url}
+                    href={project.github_url!}
                     target="_blank"
-                    rel="noreferrer"
+                    rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-xs font-semibold text-slate-300 hover:text-white transition-colors"
                   >
                     <GithubIcon className="w-4 h-4" />
