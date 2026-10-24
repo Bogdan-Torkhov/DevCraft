@@ -23,6 +23,20 @@ export default function CreatorHeader({
 }: CreatorHeaderProps) {
   const [isEditOpen, setIsEditOpen] = useState(false);
 
+  const formattedJoined = (() => {
+    if (!user.created_at) return "Recently";
+    try {
+      const safe = user.created_at.includes("T")
+        ? user.created_at
+        : user.created_at.replace(" ", "T") + "Z";
+      const d = new Date(safe);
+      if (isNaN(d.getTime())) return "Recently";
+      return d.toLocaleDateString("en-US", { month: "short", year: "numeric" });
+    } catch {
+      return "Recently";
+    }
+  })();
+
   return (
     <>
       <div className="rounded-3xl border border-white/[0.08] bg-gradient-to-b from-[#111422] to-[#0c0e17] p-8 relative overflow-hidden shadow-2xl">
@@ -132,9 +146,9 @@ export default function CreatorHeader({
             <span className="font-bold text-white text-sm">{totalViews}</span>
             <span>Views</span>
           </div>
-          <div className="flex items-center gap-2 text-slate-500">
-            <Calendar className="w-4 h-4" />
-            <span>Joined DevCraft</span>
+          <div className="flex items-center gap-2 text-slate-400">
+            <Calendar className="w-4 h-4 text-violet-400" />
+            <span>Joined <span className="text-white font-bold">{formattedJoined}</span></span>
           </div>
         </div>
       </div>
