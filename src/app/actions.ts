@@ -102,11 +102,20 @@ export async function registerAction(formData: FormData) {
   const username = formData.get("username") as string;
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
+  const confirmPassword = formData.get("confirmPassword") as string;
   const role = formData.get("role") as string;
   const bio = formData.get("bio") as string;
 
   if (!name || !username || !email || !password) {
     return { error: "Name, username, email, and password are required" };
+  }
+
+  if (confirmPassword && password !== confirmPassword) {
+    return { error: "Passwords do not match" };
+  }
+
+  if (password.length < 6) {
+    return { error: "Password must be at least 6 characters" };
   }
 
   const res = await registerUser({ name, username, email, password, role, bio });

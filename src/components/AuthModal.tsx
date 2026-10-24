@@ -41,6 +41,19 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
     e.preventDefault();
     setError(null);
     const formData = new FormData(e.currentTarget);
+    const password = formData.get("password") as string;
+    const confirmPassword = formData.get("confirmPassword") as string;
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters");
+      return;
+    }
+
     startTransition(async () => {
       const res = await registerAction(formData);
       if (res.error) {
@@ -204,15 +217,28 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Password *</label>
-                <input
-                  name="password"
-                  type="password"
-                  required
-                  placeholder="Minimum 6 characters"
-                  className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs text-white placeholder-slate-500 outline-none focus:border-violet-500"
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Password *</label>
+                  <input
+                    name="password"
+                    type="password"
+                    required
+                    placeholder="Min 6 characters"
+                    className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs text-white placeholder-slate-500 outline-none focus:border-violet-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Confirm Password *</label>
+                  <input
+                    name="confirmPassword"
+                    type="password"
+                    required
+                    placeholder="Repeat password"
+                    className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs text-white placeholder-slate-500 outline-none focus:border-violet-500"
+                  />
+                </div>
               </div>
 
               <div>
