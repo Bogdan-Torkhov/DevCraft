@@ -44,7 +44,7 @@ export default function ConfirmModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop animate-fade-in"
       role="alertdialog"
       aria-modal="true"
       aria-labelledby="confirm-modal-title"
@@ -52,7 +52,7 @@ export default function ConfirmModal({
     >
       <div
         ref={modalRef}
-        className="w-full max-w-md rounded-2xl bg-[#0c0e17] border border-white/10 shadow-2xl p-6 relative overflow-hidden animate-modal"
+        className="modal-surface relative w-full max-w-md overflow-hidden rounded-3xl p-6 animate-modal"
       >
         {/* Glow ambient background */}
         <div
@@ -63,6 +63,7 @@ export default function ConfirmModal({
 
         {/* Close Button */}
         <button
+          type="button"
           onClick={onCancel}
           disabled={isPending}
           aria-label="Close dialog"

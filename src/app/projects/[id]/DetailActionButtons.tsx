@@ -35,6 +35,8 @@ export default function DetailActionButtons({
       return;
     }
 
+    const previousStarred = hasStarred;
+    const previousStarsCount = starsCount;
     const nextStarred = !hasStarred;
     setHasStarred(nextStarred);
     setStarsCount((prev) => (nextStarred ? prev + 1 : Math.max(0, prev - 1)));
@@ -52,8 +54,8 @@ export default function DetailActionButtons({
     startTransition(async () => {
       const res = await toggleStarAction(project.id);
       if ("error" in res && res.error) {
-        setHasStarred(!nextStarred);
-        setStarsCount(project.stars_count);
+        setHasStarred(previousStarred);
+        setStarsCount(previousStarsCount);
         setIsAuthOpen(true);
       } else if ("totalStars" in res && res.totalStars !== undefined) {
         setStarsCount(res.totalStars);
@@ -87,8 +89,10 @@ export default function DetailActionButtons({
       <div className="flex items-center gap-3">
         {/* Star CTA with pop animation */}
         <button
+          type="button"
           onClick={handleStar}
           disabled={isPending}
+          aria-pressed={hasStarred}
           className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all border shadow-lg ${
             hasStarred
               ? "bg-amber-500/20 text-amber-300 border-amber-500/40 shadow-amber-500/10"
@@ -109,6 +113,7 @@ export default function DetailActionButtons({
         {/* Delete button for author */}
         {isAuthor && (
           <button
+            type="button"
             onClick={() => setIsDeleteModalOpen(true)}
             disabled={isPending}
             className="p-2.5 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 hover:text-rose-300 transition-colors"

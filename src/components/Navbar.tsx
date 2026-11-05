@@ -2,12 +2,13 @@
 
 import { useState, useTransition, useRef, useEffect } from "react";
 import Link from "next/link";
-import { Sparkles, Plus, LogIn, LogOut, User as UserIcon, Code2, ChevronDown } from "lucide-react";
+import { Plus, LogIn, LogOut, User as UserIcon, Code2, ChevronDown } from "lucide-react";
 import { logoutAction } from "@/app/actions";
 import { DbUser } from "@/lib/db";
 import { useToast } from "./Toast";
 import ProjectModalStudio from "./ProjectModalStudio";
 import AuthModal from "./AuthModal";
+import Avatar from "./Avatar";
 
 interface NavbarProps {
   currentUser: Omit<DbUser, "password_hash"> | null;
@@ -62,30 +63,34 @@ export default function Navbar({ currentUser }: NavbarProps) {
 
   return (
     <>
-      <header className="sticky top-0 z-40 w-full border-b border-white/[0.08] bg-[#08090e]/85 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+      <header className="sticky top-0 z-50 w-full px-3 pt-3 sm:px-5">
+        <div className="mx-auto max-w-7xl">
+          <div className="relative flex h-16 items-center justify-between gap-2 rounded-2xl border border-white/[0.08] bg-[#090a12]/80 px-2.5 shadow-[0_24px_80px_-40px_rgba(0,0,0,0.95)] backdrop-blur-2xl sm:gap-4 sm:px-5">
+          <div className="pointer-events-none absolute inset-x-10 -bottom-px h-px bg-gradient-to-r from-transparent via-violet-400/50 to-transparent" />
           
           {/* Logo & Brand */}
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-violet-600 via-indigo-600 to-cyan-400 p-[1px] shadow-lg shadow-violet-500/20 group-hover:shadow-violet-500/40 group-hover:scale-105 transition-all duration-300">
-              <div className="w-full h-full bg-[#0c0e17] rounded-[11px] flex items-center justify-center">
-                <Code2 className="w-5 h-5 text-violet-400 group-hover:text-cyan-400 group-hover:rotate-6 transition-all duration-300" />
+          <Link href="/" aria-label="DevCraft home" className="group flex shrink-0 items-center gap-2.5 sm:gap-3">
+            <div className="relative w-10 h-10 rounded-2xl bg-gradient-to-br from-violet-500 via-fuchsia-500 to-cyan-400 p-[1px] shadow-[0_0_35px_-10px_rgba(139,92,246,0.9)] group-hover:shadow-[0_0_42px_-8px_rgba(34,211,238,0.6)] transition-all duration-500 group-hover:scale-105">
+              <div className="w-full h-full bg-[#080a12] rounded-[15px] flex items-center justify-center">
+                <Code2 className="w-5 h-5 text-violet-300 group-hover:text-cyan-300 group-hover:rotate-6 transition-all duration-500" />
               </div>
             </div>
-            <div className="flex flex-col">
-              <span className="font-bold text-lg tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent group-hover:from-violet-200 group-hover:to-cyan-200 transition-all">
+            <div className="hidden flex-col min-[360px]:flex">
+              <span className="font-bold text-lg tracking-tight text-white group-hover:text-violet-100 transition-colors">
                 DevCraft
               </span>
-              <span className="text-[10px] text-violet-400 font-medium tracking-wider uppercase -mt-1 flex items-center gap-1">
-                Showcase <Sparkles className="w-2.5 h-2.5 animate-pulse" />
+              <span className="text-[9px] text-violet-300/80 font-semibold tracking-[0.22em] uppercase -mt-0.5 flex items-center gap-1.5">
+                Showcase
+                <span className="h-1 w-1 rounded-full bg-cyan-300 shadow-[0_0_8px_rgba(34,211,238,0.9)]" />
               </span>
             </div>
           </Link>
 
           {/* Right Actions */}
-          <div className="flex items-center gap-3">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
             {/* Publish Project CTA */}
             <button
+              type="button"
               onClick={() => {
                 if (!currentUser) {
                   setIsAuthOpen(true);
@@ -93,34 +98,36 @@ export default function Navbar({ currentUser }: NavbarProps) {
                   setIsPublishOpen(true);
                 }
               }}
-              className="relative group overflow-hidden flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-violet-600 hover:scale-[1.02] active:scale-[0.98] text-white text-xs font-semibold shadow-lg shadow-violet-600/25 hover:shadow-violet-600/40 transition-all cursor-pointer"
+              className="group/btn relative flex cursor-pointer items-center gap-1.5 overflow-hidden whitespace-nowrap rounded-xl bg-gradient-to-r from-violet-600 via-indigo-500 to-cyan-500 px-3 py-2 text-xs font-semibold text-white ring-1 ring-inset ring-white/15 shadow-[0_10px_35px_-12px_rgba(139,92,246,0.9)] transition-all hover:shadow-[0_12px_45px_-12px_rgba(139,92,246,1)] hover:brightness-110 active:scale-[0.98] sm:px-4"
             >
-              <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-              <Plus className="w-3.5 h-3.5 shrink-0" />
-              <span className="hidden sm:inline">Publish Project</span>
-              <span className="sm:hidden">Publish</span>
+              <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover/btn:translate-x-full" />
+              <Plus className="relative w-3.5 h-3.5 shrink-0" />
+              <span className="relative hidden sm:inline">Publish Project</span>
+              <span className="relative sm:hidden">Publish</span>
             </button>
 
             {/* User Profile or Sign In */}
             {currentUser ? (
               <div className="relative" ref={userMenuRef}>
                 <button
+                  type="button"
                   onClick={() => setIsUserMenuOpen((prev) => !prev)}
                   aria-label={`User menu for ${currentUser.name}`}
                   aria-expanded={isUserMenuOpen}
                   className={`flex items-center gap-2 pl-2 pr-2.5 py-1 rounded-full border transition-all ${
                     isUserMenuOpen
-                      ? "bg-violet-600/20 border-violet-500/50 shadow-md shadow-violet-600/20"
-                      : "bg-white/[0.04] hover:bg-white/[0.08] border-white/[0.08]"
+                      ? "bg-violet-500/15 border-violet-400/50 shadow-[0_0_24px_-8px_rgba(139,92,246,0.8)]"
+                      : "bg-white/[0.04] hover:bg-white/[0.07] border-white/10 hover:border-white/20"
                   }`}
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={currentUser.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser.username}`}
-                    alt=""
-                    aria-hidden="true"
-                    className="w-6 h-6 rounded-full object-cover border border-white/20"
-                  />
+                  <span className="rounded-full bg-gradient-to-br from-violet-400 via-fuchsia-400 to-cyan-300 p-[1px]">
+                    <Avatar
+                      src={currentUser.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser.username}`}
+                      name={currentUser.name}
+                      className="h-6 w-6 rounded-full border border-[#090a12] object-cover"
+                      textClassName="text-[8px]"
+                    />
+                  </span>
                   <span className="text-xs font-medium text-slate-200 hidden sm:inline max-w-[100px] truncate">
                     {currentUser.name}
                   </span>
@@ -128,10 +135,10 @@ export default function Navbar({ currentUser }: NavbarProps) {
                 </button>
 
                 {isUserMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-56 rounded-2xl bg-[#0f121d]/95 border border-white/10 shadow-2xl py-2 z-50 backdrop-blur-2xl animate-dropdown-right">
-                    <div className="px-4 py-2 border-b border-white/[0.06]">
+                  <div className="absolute right-0 mt-2 w-60 rounded-2xl border border-white/10 bg-[#0b0d16]/95 py-2 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.9)] backdrop-blur-2xl z-50 animate-dropdown-right">
+                    <div className="px-4 py-2.5 border-b border-white/[0.06]">
                       <div className="font-semibold text-xs text-white">{currentUser.name}</div>
-                      <div className="text-[11px] text-violet-400 font-mono">@{currentUser.username}</div>
+                      <div className="text-[11px] text-violet-300 font-mono">@{currentUser.username}</div>
                     </div>
                     <Link
                       href={`/creators/${currentUser.username}`}
@@ -142,6 +149,7 @@ export default function Navbar({ currentUser }: NavbarProps) {
                       <span>My Profile & Projects</span>
                     </Link>
                     <button
+                      type="button"
                       disabled={isPending}
                       onClick={handleLogout}
                       className="w-full px-4 py-2 text-left flex items-center gap-2 text-xs text-rose-400 hover:bg-rose-500/10 transition-colors"
@@ -154,14 +162,16 @@ export default function Navbar({ currentUser }: NavbarProps) {
               </div>
             ) : (
               <button
+                type="button"
                 onClick={() => setIsAuthOpen(true)}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-xs font-medium text-slate-200 hover:text-white hover:border-violet-500/40 transition-all cursor-pointer"
+                className="flex cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-xl border border-white/10 bg-white/[0.04] px-2.5 py-2 text-xs font-medium text-slate-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-all hover:border-violet-400/40 hover:bg-white/[0.07] hover:text-white sm:px-3.5"
               >
-                <LogIn className="w-3.5 h-3.5 text-violet-400" />
+                <LogIn className="w-3.5 h-3.5 text-violet-300" />
                 <span>Sign In</span>
               </button>
             )}
           </div>
+        </div>
         </div>
       </header>
 

@@ -1,4 +1,4 @@
-import { getDb, DbUser, DbProject, ProjectWithAuthor, DbComment } from "./db";
+import { getDb, DbUser, ProjectWithAuthor, DbComment } from "./db";
 import crypto from "node:crypto";
 
 function toPlain<T>(obj: T): T {

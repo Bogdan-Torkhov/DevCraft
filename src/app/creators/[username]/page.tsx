@@ -30,10 +30,10 @@ export default async function CreatorProfilePage({ params }: CreatorPageProps) {
   const isOwner = currentUser?.id === user.id;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#08090e]">
+    <div className="min-h-screen flex flex-col">
       <Navbar currentUser={currentUser} />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 space-y-8">
         {/* Navigation Breadcrumb */}
         <div>
           <Link
@@ -55,18 +55,27 @@ export default async function CreatorProfilePage({ params }: CreatorPageProps) {
         />
 
         {/* Creations Grid */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-bold text-white">Showcase Portfolio</h2>
-            <span className="text-xs text-slate-500 font-mono">{projects.length} creations</span>
+        <div className="space-y-5">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-violet-300/80">
+                <span className="h-px w-6 bg-gradient-to-r from-violet-400/80 to-transparent" />
+                Portfolio
+              </div>
+              <h2 className="mt-2 text-2xl font-bold tracking-tight text-white sm:text-3xl">Showcase Portfolio</h2>
+            </div>
+            <span className="rounded-full border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 font-mono text-[11px] text-slate-400 backdrop-blur-md">
+              <span className="text-slate-100">{projects.length}</span>{" "}
+              {projects.length === 1 ? "creation" : "creations"}
+            </span>
           </div>
 
           {projects.length === 0 ? (
-            <div className="py-16 text-center rounded-2xl border border-white/[0.06] bg-white/[0.02]">
+            <div className="glass-panel rounded-3xl py-16 text-center">
               <p className="text-xs text-slate-400">No creations published yet.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {projects.map((p) => (
                 <ProjectCard key={p.id} project={p} />
               ))}

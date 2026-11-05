@@ -12,7 +12,6 @@ const dbPath = path.join(dataDir, "devcraft.db");
 
 // Singleton connection across Next.js dev hot-reloads
 declare global {
-  // eslint-disable-next-line no-var
   var __devcraft_db: DatabaseSync | undefined;
 }
 

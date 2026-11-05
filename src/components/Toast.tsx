@@ -41,8 +41,17 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
         {toasts.map((t) => (
           <div
             key={t.id}
-            className="pointer-events-auto rounded-2xl bg-[#0e111c]/95 border border-white/10 shadow-2xl p-3.5 flex items-start gap-3 backdrop-blur-xl animate-dropdown transition-all"
+            className="pointer-events-auto relative flex items-start gap-3 overflow-hidden rounded-2xl border border-white/10 bg-[#0c0f19]/95 p-3.5 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.9)] backdrop-blur-xl animate-dropdown transition-all"
           >
+            <span
+              className={`absolute inset-y-0 left-0 w-0.5 ${
+                t.type === "error"
+                  ? "bg-rose-400"
+                  : t.type === "info"
+                    ? "bg-cyan-400"
+                    : "bg-emerald-400"
+              }`}
+            />
             {t.avatar ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -64,8 +73,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             </div>
 
             <button
+              type="button"
               onClick={() => removeToast(t.id)}
-              className="p-1 rounded-lg text-slate-400 hover:text-white transition-colors"
+              aria-label="Dismiss notification"
+              className="rounded-lg p-1 text-slate-400 transition-colors hover:bg-white/[0.06] hover:text-white"
             >
               <X className="w-3.5 h-3.5" />
             </button>

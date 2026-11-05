@@ -38,8 +38,8 @@ export default function CodeSandboxViewer({ codeSnippet, title }: CodeSandboxVie
   };
 
   return (
-    <div className={`rounded-2xl border border-white/10 bg-[#0c0e17] overflow-hidden flex flex-col shadow-2xl transition-all ${
-      isFullscreen ? "fixed inset-4 z-50 rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.9)]" : "relative"
+    <div className={`flex flex-col overflow-hidden rounded-3xl border border-white/[0.08] bg-[#0a0c14] shadow-[0_30px_90px_-50px_rgba(0,0,0,0.95)] transition-all ${
+      isFullscreen ? "fixed inset-4 z-50 rounded-3xl shadow-[0_0_60px_rgba(0,0,0,0.95)]" : "relative"
     }`}>
       {/* Top Sandbox Bar */}
       <div className="px-4 py-3 border-b border-white/[0.08] bg-[#090b12] flex flex-wrap items-center justify-between gap-3">
@@ -49,8 +49,8 @@ export default function CodeSandboxViewer({ codeSnippet, title }: CodeSandboxVie
             onClick={() => setActiveTab("sandbox")}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
               activeTab === "sandbox"
-                ? "bg-violet-600 text-white shadow-md shadow-violet-600/30"
-                : "text-slate-400 hover:text-slate-200"
+                ? "bg-gradient-to-r from-violet-600 to-indigo-500 text-white shadow-[0_4px_20px_-6px_rgba(139,92,246,0.85)]"
+                : "text-slate-400 hover:bg-white/[0.05] hover:text-slate-200"
             }`}
           >
             <Play className="w-3.5 h-3.5 fill-current" />
@@ -61,8 +61,8 @@ export default function CodeSandboxViewer({ codeSnippet, title }: CodeSandboxVie
             onClick={() => setActiveTab("code")}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
               activeTab === "code"
-                ? "bg-violet-600 text-white shadow-md shadow-violet-600/30"
-                : "text-slate-400 hover:text-slate-200"
+                ? "bg-gradient-to-r from-violet-600 to-indigo-500 text-white shadow-[0_4px_20px_-6px_rgba(139,92,246,0.85)]"
+                : "text-slate-400 hover:bg-white/[0.05] hover:text-slate-200"
             }`}
           >
             <Code2 className="w-3.5 h-3.5" />

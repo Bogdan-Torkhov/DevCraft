@@ -1,35 +1,58 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState, useMemo } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import FilterBar from "./FilterBar";
 import ProjectCard from "./ProjectCard";
 import AuthModal from "./AuthModal";
-import { ProjectWithAuthor, DbUser } from "@/lib/db";
+import { ProjectWithAuthor } from "@/lib/db";
 import { Sparkles } from "lucide-react";
 
 interface ProjectFeedProps {
   initialProjects: ProjectWithAuthor[];
-  currentUser: Omit<DbUser, "password_hash"> | null;
+  initialTag: string;
 }
 
 export default function ProjectFeed({
   initialProjects,
-  currentUser,
+  initialTag,
 }: ProjectFeedProps) {
-  const searchParams = useSearchParams();
-  const urlTag = searchParams?.get("tag");
+  const router = useRouter();
+  const pathname = usePathname();
 
   const [sort, setSort] = useState<"trending" | "recent" | "stars" | "views">("trending");
-  const [tag, setTag] = useState<string>(urlTag || "All");
+  const [tag, setTag] = useState<string>(initialTag);
+  const [previousInitialTag, setPreviousInitialTag] = useState(initialTag);
   const [search, setSearch] = useState<string>("");
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
-  useEffect(() => {
-    if (urlTag) {
-      setTag(urlTag);
+  // Keep the active tag in sync when the URL changes through navigation or
+  // browser back/forward. This is React's recommended way to adjust state when
+  // a prop changes, and avoids an extra render pass from an effect.
+  if (initialTag !== previousInitialTag) {
+    setPreviousInitialTag(initialTag);
+    setTag(initialTag);
+  }
+
+  const handleTagChange = (nextTag: string) => {
+    setTag(nextTag);
+
+    const params = new URLSearchParams(window.location.search);
+    if (nextTag === "All") {
+      params.delete("tag");
+    } else {
+      params.set("tag", nextTag);
     }
-  }, [urlTag]);
+
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  };
+
+  const clearFilters = () => {
+    setSearch("");
+    setSort("trending");
+    handleTagChange("All");
+  };
 
   // Client-side filtering & sorting for instantaneous responsiveness
   const filteredProjects = useMemo(() => {
@@ -79,42 +102,61 @@ export default function ProjectFeed({
   }, [initialProjects, sort, tag, search]);
 
   return (
-    <section aria-label="Community Showcases">
-      <h2 className="sr-only">Explore Creative Code & Components</h2>
+    <section id="showcases" aria-label="Community Showcases" className="scroll-mt-28">
+      <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-violet-300/80">
+            <span className="h-px w-6 bg-gradient-to-r from-violet-400/80 to-transparent" />
+            Community feed
+          </div>
+          <h2 className="mt-2 text-2xl font-bold tracking-tight text-white sm:text-3xl">
+            Discover what creators are building
+          </h2>
+        </div>
+        <div
+          role="status"
+          aria-live="polite"
+          className="rounded-full border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 font-mono text-[11px] text-slate-400 backdrop-blur-md"
+        >
+          <span className="text-slate-100">{filteredProjects.length}</span> of{" "}
+          {initialProjects.length} projects
+        </div>
+      </div>
+
       <FilterBar
         currentSort={sort}
         currentTag={tag}
         searchQuery={search}
         onSortChange={setSort}
-        onTagChange={setTag}
+        onTagChange={handleTagChange}
         onSearchChange={setSearch}
       />
 
       {filteredProjects.length === 0 ? (
-        <div className="py-20 text-center rounded-2xl border border-white/[0.06] bg-white/[0.02] p-8">
-          <Sparkles className="w-10 h-10 text-slate-600 mx-auto mb-3" />
+        <div className="glass-panel rounded-3xl px-6 py-20 text-center">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-gradient-to-br from-violet-500/15 to-cyan-500/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
+            <Sparkles className="h-6 w-6 text-violet-300" />
+          </div>
           <h3 className="text-base font-bold text-white">No projects found</h3>
-          <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
+          <p className="mx-auto mt-1.5 max-w-sm text-xs leading-relaxed text-slate-400">
             Try adjusting your search query or stack filters to find what you&apos;re looking for.
           </p>
           <button
-            onClick={() => {
-              setTag("All");
-              setSearch("");
-            }}
-            className="mt-4 px-4 py-1.5 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-xs font-medium text-slate-200 transition-colors"
+            type="button"
+            onClick={clearFilters}
+            className="mt-5 rounded-xl border border-white/10 bg-white/[0.05] px-4 py-2 text-xs font-semibold text-slate-200 transition-all hover:border-violet-400/40 hover:bg-white/[0.08] hover:text-white"
           >
             Clear Filters
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {filteredProjects.map((project) => (
             <ProjectCard
               key={project.id}
               project={project}
               onRequireAuth={() => setIsAuthModalOpen(true)}
-              onTagClick={(t) => setTag(t)}
+              onTagClick={handleTagChange}
             />
           ))}
         </div>

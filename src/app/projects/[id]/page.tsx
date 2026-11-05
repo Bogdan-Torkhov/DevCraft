@@ -7,6 +7,7 @@ import { getProjectById, incrementViews, getComments } from "@/lib/services";
 import Navbar from "@/components/Navbar";
 import CodeSandboxViewer from "@/components/CodeSandboxViewer";
 import CommentSection from "@/components/CommentSection";
+import Avatar from "@/components/Avatar";
 import DetailActionButtons from "./DetailActionButtons";
 
 interface ProjectPageProps {
@@ -46,10 +47,10 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
   const isAuthor = currentUser?.id === project.author_id;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#08090e]">
+    <div className="min-h-screen flex flex-col">
       <Navbar currentUser={currentUser} />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 space-y-8">
         {/* Back Link & Navigation Breadcrumb */}
         <div className="flex items-center justify-between">
           <Link
@@ -61,56 +62,63 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
           </Link>
 
           <div className="flex items-center gap-2">
-            <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.04] text-xs text-slate-400 border border-white/[0.06] font-mono">
-              <Eye className="w-3.5 h-3.5 text-slate-500" />
-              <span>{project.views} views</span>
+            <span className="flex items-center gap-1.5 rounded-full border border-white/[0.07] bg-white/[0.035] px-3 py-1 font-mono text-[11px] text-slate-400 backdrop-blur-md">
+              <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.9)]" />
+              <Eye className="h-3.5 w-3.5 text-cyan-300/80" />
+              <span className="tabular-nums">{project.views} views</span>
             </span>
           </div>
         </div>
 
         {/* Project Header */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-white/[0.08]">
-          <div className="space-y-3 max-w-3xl">
-            {/* Clickable Tech Stack Tags */}
-            <div className="flex flex-wrap items-center gap-2">
-              {tags.map((t) => (
-                <Link
-                  key={t}
-                  href={`/?tag=${encodeURIComponent(t)}`}
-                  className="px-2.5 py-0.5 rounded-full bg-violet-500/10 hover:bg-violet-500/20 text-violet-300 hover:text-violet-200 border border-violet-500/20 hover:border-violet-500/40 text-xs font-medium transition-all"
-                >
-                  #{t}
-                </Link>
-              ))}
+        <div className="relative overflow-hidden rounded-3xl border border-white/[0.08] bg-gradient-to-br from-[#121527]/95 via-[#0c0e17]/95 to-[#0a0b12] p-5 shadow-[0_30px_90px_-50px_rgba(0,0,0,0.95)] sm:p-8">
+          <div className="pointer-events-none absolute -right-24 -top-28 h-72 w-72 rounded-full bg-violet-600/15 blur-3xl" />
+          <div className="pointer-events-none absolute -left-20 bottom-0 h-56 w-56 rounded-full bg-cyan-500/10 blur-3xl" />
+          <div className="pointer-events-none absolute inset-x-16 top-0 h-px bg-gradient-to-r from-transparent via-violet-400/60 to-transparent" />
+
+          <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-3xl space-y-4">
+              {/* Clickable Tech Stack Tags */}
+              <div className="flex flex-wrap items-center gap-2">
+                {tags.map((t) => (
+                  <Link
+                    key={t}
+                    href={`/?tag=${encodeURIComponent(t)}`}
+                    className="rounded-full border border-violet-400/20 bg-violet-500/10 px-2.5 py-1 text-[11px] font-medium text-violet-300 transition-all hover:border-violet-400/40 hover:bg-violet-500/20 hover:text-violet-100"
+                  >
+                    #{t}
+                  </Link>
+                ))}
+              </div>
+
+              <h1 className="bg-gradient-to-br from-white via-white to-slate-400 bg-clip-text text-3xl font-black tracking-tight text-transparent sm:text-4xl lg:text-5xl">
+                {project.title}
+              </h1>
+              <p className="max-w-2xl text-sm leading-relaxed text-slate-400 sm:text-base">
+                {project.tagline}
+              </p>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-              {project.title}
-            </h1>
-            <p className="text-base text-slate-400 leading-relaxed">
-              {project.tagline}
-            </p>
+            {/* Interactive Star & Action Buttons */}
+            <DetailActionButtons
+              project={project}
+              isAuthor={isAuthor}
+              currentUser={currentUser}
+            />
           </div>
-
-          {/* Interactive Star & Action Buttons */}
-          <DetailActionButtons
-            project={project}
-            isAuthor={isAuthor}
-            currentUser={currentUser}
-          />
         </div>
 
         {/* Live Code Sandbox or Mockup Showcase */}
         {project.code_snippet ? (
           <div className="space-y-3">
-            <div className="flex items-center gap-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">
-              <Sparkles className="w-3.5 h-3.5 text-violet-400" />
+            <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-violet-300/80">
+              <Sparkles className="w-3.5 h-3.5 text-violet-300" />
               <span>Executable Component & Live Sandbox</span>
             </div>
             <CodeSandboxViewer codeSnippet={project.code_snippet} title={project.title} />
           </div>
         ) : project.cover_image ? (
-          <div className="rounded-2xl overflow-hidden border border-white/[0.08] bg-[#0c0e17] max-h-[600px] flex items-center justify-center">
+          <div className="flex max-h-[600px] items-center justify-center overflow-hidden rounded-3xl border border-white/[0.08] bg-[#0c0e17] shadow-[0_30px_80px_-50px_rgba(0,0,0,0.95)]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={project.cover_image}
@@ -125,8 +133,11 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
           
           {/* Main Case Study */}
           <div className="lg:col-span-2 space-y-6">
-            <div className="rounded-2xl border border-white/[0.08] bg-[#0c0e17] p-6 space-y-4">
-              <h2 className="text-lg font-bold text-white">Project Case Study & Technical Notes</h2>
+            <div className="glass-panel space-y-5 rounded-3xl p-6 sm:p-7">
+              <div>
+                <div className="eyebrow">Case study</div>
+                <h2 className="mt-1.5 text-lg font-bold tracking-tight text-white">Project Case Study &amp; Technical Notes</h2>
+              </div>
               <div className="text-sm text-slate-300 leading-relaxed whitespace-pre-line font-normal">
                 {project.description}
               </div>
@@ -171,23 +182,25 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
 
           {/* Author Sidebar: Fully modern, clicking avatar, name, or @username directly navigates to their profile! */}
           <div className="space-y-6">
-            <div className="rounded-2xl border border-white/[0.08] bg-[#0c0e17] p-6 space-y-4 sticky top-24 hover:border-violet-500/30 transition-all duration-300">
-              <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-                Author & Creator
+            <div className="glass-panel sticky top-24 space-y-4 rounded-3xl p-6 transition-colors duration-300 hover:border-violet-400/30">
+              <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-violet-300/80">
+                <span className="h-1.5 w-1.5 rounded-full bg-violet-400 shadow-[0_0_8px_rgba(139,92,246,0.9)]" />
+                Author &amp; Creator
               </div>
 
               <Link
                 href={`/creators/${project.author_username}`}
-                className="flex items-center gap-3.5 group/author min-h-[48px] py-1"
+                className="group/author flex min-h-[48px] items-center gap-3.5 py-1"
                 title={`View @${project.author_username}'s profile`}
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={project.author_avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${project.author_username}`}
-                  alt=""
-                  aria-hidden="true"
-                  className="w-12 h-12 rounded-2xl object-cover border border-white/10 group-hover/author:border-violet-400 transition-colors shrink-0"
-                />
+                <span className="shrink-0 rounded-2xl bg-gradient-to-br from-violet-400 via-fuchsia-400 to-cyan-300 p-[1px] transition-transform duration-300 group-hover/author:scale-105">
+                  <Avatar
+                    src={project.author_avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${project.author_username}`}
+                    name={project.author_name}
+                    className="h-12 w-12 rounded-2xl border border-[#0b0d17] object-cover"
+                    textClassName="text-sm"
+                  />
+                </span>
                 <div className="min-w-0 flex-1">
                   <span className="text-base font-bold text-white group-hover/author:text-violet-300 transition-colors block truncate">
                     {project.author_name}

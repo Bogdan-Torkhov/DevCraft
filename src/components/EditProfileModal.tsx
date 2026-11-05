@@ -166,8 +166,8 @@ export default function EditProfileModal({ isOpen, onClose, user }: EditProfileM
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in">
-      <div className="w-full max-w-xl max-h-[92vh] rounded-2xl bg-[#0c0e17] border border-white/10 shadow-2xl flex flex-col overflow-hidden animate-modal">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 modal-backdrop animate-fade-in">
+      <div className="modal-surface w-full max-w-xl max-h-[92vh] rounded-3xl flex flex-col overflow-hidden animate-modal">
         
         {/* Header */}
         <div className="px-5 sm:px-6 py-4 border-b border-white/[0.08] flex items-center justify-between shrink-0">

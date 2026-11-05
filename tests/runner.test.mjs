@@ -1,4 +1,4 @@
-import { test, describe, before, beforeEach } from "node:test";
+import { test, describe, beforeEach } from "node:test";
 import assert from "node:assert/strict";
 import { DatabaseSync } from "node:sqlite";
 import bcrypt from "bcryptjs";
